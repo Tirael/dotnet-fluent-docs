@@ -1,0 +1,23 @@
+<Project>
+  <PropertyGroup>
+    <FluentDocsContinueOnError>false</FluentDocsContinueOnError>
+    <FluentDocsContinueOnError Condition="'$(FluentDocsFailOnError)' == 'false'">true</FluentDocsContinueOnError>
+    <FluentDocsToolDll Condition="'$(FluentDocsToolDll)' == ''">$(MSBuildThisFileDirectory)..\tools\net10.0\FluentDocs.Tool.dll</FluentDocsToolDll>
+  </PropertyGroup>
+
+  <Target Name="GenerateFluentDocs"
+          AfterTargets="Build"
+          Condition="'$(FluentDocsEnabled)' == 'true' and '$(DesignTimeBuild)' != 'true' and '$(BuildingProject)' == 'true'">
+    <Error Condition="!Exists('$(FluentDocsToolDll)')"
+           Text="FluentDocs tool was not found at '$(FluentDocsToolDll)'. Build FluentDocs.Tool first or set FluentDocsToolDll." />
+
+    <PropertyGroup>
+      <_FluentDocsXmlArg></_FluentDocsXmlArg>
+      <_FluentDocsXmlArg Condition="'$(DocumentationFile)' != '' and Exists('$(DocumentationFile)')">--xml "$(DocumentationFile)"</_FluentDocsXmlArg>
+    </PropertyGroup>
+
+    <Exec Command="dotnet exec &quot;$(FluentDocsToolDll)&quot; --assembly &quot;$(TargetPath)&quot; $(_FluentDocsXmlArg) --output &quot;$(FluentDocsOutputPath)&quot; --snapshot &quot;$(FluentDocsSnapshotPath)&quot;"
+          ContinueOnError="$(FluentDocsContinueOnError)"
+          LogStandardErrorAsError="true" />
+  </Target>
+</Project>

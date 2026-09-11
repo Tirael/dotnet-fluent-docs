@@ -1,0 +1,281 @@
+{
+  "version": "1",
+  "types": [
+    {
+      "fullName": "DemoApp.Options.MailOptions",
+      "name": "MailOptions",
+      "configurationPath": "Mail",
+      "summary": "SMTP mail delivery settings.",
+      "remarks": "Bound to the Mail configuration section.",
+      "properties": [
+        {
+          "path": "AllowedSenderPatterns",
+          "clrType": "List\u003Cstring\u003E",
+          "defaultValue": "[]",
+          "summary": "Regular expressions that outgoing sender addresses must match.",
+          "rules": []
+        },
+        {
+          "path": "AllowedSenderPatterns[]",
+          "clrType": "string[]",
+          "defaultValue": "[]",
+          "summary": "Regular expressions that outgoing sender addresses must match.",
+          "rules": [
+            {
+              "id": "Matches:^.*$",
+              "description": "Must match pattern \u0060^.*$\u0060.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Must not be empty.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "EnableTls",
+          "clrType": "bool",
+          "defaultValue": "true",
+          "summary": "When true, the client starts a TLS session after connect.",
+          "rules": []
+        },
+        {
+          "path": "From",
+          "clrType": "string",
+          "defaultValue": "\u0022noreply@localhost\u0022",
+          "summary": "Envelope sender address used for outgoing mail.",
+          "rules": [
+            {
+              "id": "EmailAddress",
+              "description": "Must be a valid email address.",
+              "message": "From must be a valid email address.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Must not be empty.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Host",
+          "clrType": "string",
+          "defaultValue": "\u0022localhost\u0022",
+          "summary": "SMTP host name or address.",
+          "rules": [
+            {
+              "id": "MaximumLength:255",
+              "description": "Maximum length is 255.",
+              "message": "SMTP host is required and must be at most 255 characters.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Must not be empty.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Port",
+          "clrType": "int",
+          "defaultValue": "25",
+          "summary": "SMTP TCP port.",
+          "rules": [
+            {
+              "id": "GreaterThanOrEqual:465",
+              "description": "Must be greater than or equal to 465.",
+              "message": "TLS mail typically uses port 465 or 587.",
+              "hasCondition": true
+            },
+            {
+              "id": "InclusiveBetween:1-65535",
+              "description": "Must be between 1 and 65535 (inclusive).",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Recipients",
+          "clrType": "List\u003CRecipientOptions\u003E",
+          "defaultValue": "[]",
+          "summary": "Recipients that always receive a copy of system notifications.",
+          "rules": [
+            {
+              "id": "NotNull",
+              "description": "Must not be null.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Recipients[]",
+          "clrType": "RecipientOptions[]",
+          "defaultValue": "[]",
+          "summary": "Recipients that always receive a copy of system notifications.",
+          "rules": []
+        },
+        {
+          "path": "Recipients[].Email",
+          "clrType": "string",
+          "summary": "Recipient email address.",
+          "rules": [
+            {
+              "id": "EmailAddress",
+              "description": "Must be a valid email address.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Must not be empty.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Recipients[].Name",
+          "clrType": "string",
+          "summary": "Optional display name.",
+          "rules": [
+            {
+              "id": "MaximumLength:100",
+              "description": "Maximum length is 100.",
+              "hasCondition": true
+            }
+          ]
+        },
+        {
+          "path": "Retry",
+          "clrType": "RetryOptions",
+          "summary": "Retry policy applied after a failed send.",
+          "rules": []
+        },
+        {
+          "path": "Retry.DelayMilliseconds",
+          "clrType": "int",
+          "defaultValue": "200",
+          "summary": "Delay between attempts in milliseconds.",
+          "rules": [
+            {
+              "id": "GreaterThan:0",
+              "description": "Must be greater than 0.",
+              "hasCondition": false
+            },
+            {
+              "id": "LessThanOrEqual:60000",
+              "description": "Must be less than or equal to 60000.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Retry.MaxAttempts",
+          "clrType": "int",
+          "defaultValue": "3",
+          "summary": "Maximum number of send attempts, including the first try.",
+          "rules": [
+            {
+              "id": "InclusiveBetween:1-10",
+              "description": "Must be between 1 and 10 (inclusive).",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "TimeoutSeconds",
+          "clrType": "int",
+          "defaultValue": "30",
+          "summary": "Send timeout in seconds.",
+          "rules": [
+            {
+              "id": "InclusiveBetween:1-300",
+              "description": "Must be between 1 and 300 (inclusive).",
+              "hasCondition": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fullName": "DemoApp.Options.StorageOptions",
+      "name": "StorageOptions",
+      "configurationPath": "Storage",
+      "summary": "File storage settings for demo artifacts.",
+      "properties": [
+        {
+          "path": "BucketName",
+          "clrType": "string",
+          "defaultValue": "null",
+          "summary": "Object-storage bucket name. Required when Provider is S3.",
+          "rules": [
+            {
+              "id": "Matches:^[a-z0-9.-]{3,63}$",
+              "description": "Must match pattern \u0060^[a-z0-9.-]{3,63}$\u0060.",
+              "message": "BucketName must be a valid S3 bucket name.",
+              "hasCondition": true
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Must not be empty.",
+              "hasCondition": true
+            }
+          ]
+        },
+        {
+          "path": "MaxFileSizeBytes",
+          "clrType": "long",
+          "defaultValue": "1048576",
+          "summary": "Maximum uploaded file size in bytes.",
+          "rules": [
+            {
+              "id": "InclusiveBetween:1-104857600",
+              "description": "Must be between 1 and 104857600 (inclusive).",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Provider",
+          "clrType": "string",
+          "defaultValue": "\u0022Local\u0022",
+          "summary": "Storage backend identifier. Supported values: Local, S3.",
+          "rules": [
+            {
+              "id": "Must",
+              "description": "Must satisfy a custom predicate.",
+              "message": "Provider must be Local or S3.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Must not be empty.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "RootPath",
+          "clrType": "string",
+          "defaultValue": "\u0022/var/demo/data\u0022",
+          "summary": "Absolute directory used when Provider is Local.",
+          "rules": [
+            {
+              "id": "Must",
+              "description": "Must satisfy a custom predicate.",
+              "message": "RootPath must be an absolute Unix path.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Must not be empty.",
+              "hasCondition": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "warnings": []
+}

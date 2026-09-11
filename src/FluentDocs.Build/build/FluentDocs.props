@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <FluentDocsEnabled Condition="'$(FluentDocsEnabled)' == ''">true</FluentDocsEnabled>
+    <FluentDocsFailOnError Condition="'$(FluentDocsFailOnError)' == ''">true</FluentDocsFailOnError>
+    <FluentDocsOutputPath Condition="'$(FluentDocsOutputPath)' == ''">$(MSBuildProjectDirectory)\docs\settings.md</FluentDocsOutputPath>
+    <FluentDocsSnapshotPath Condition="'$(FluentDocsSnapshotPath)' == ''">$(MSBuildProjectDirectory)\docs\settings.snapshot.json</FluentDocsSnapshotPath>
+    <GenerateDocumentationFile Condition="'$(GenerateDocumentationFile)' == ''">true</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>
