@@ -1,5 +1,5 @@
 using System.Diagnostics;
-using FluentDocs.Rendering;
+using FluentDocs.Tests.Fixtures;
 
 namespace FluentDocs.Tests;
 
@@ -8,13 +8,14 @@ public sealed class DocumentationPipelineTests
     [Fact]
     public void Run_writes_markdown_and_snapshot_with_changelog()
     {
-        var assembly = typeof(Fixtures.SampleMailOptions).Assembly;
+        // Дано
+        var assembly = typeof(SampleMailOptions).Assembly;
         var xml = Path.ChangeExtension(assembly.Location, ".xml");
         using var directory = new TempDirectory();
-
         var firstOutput = Path.Combine(directory.Path, "settings.md");
         var snapshot = Path.Combine(directory.Path, "settings.snapshot.json");
 
+        // Когда
         var first = DocumentationPipeline.Run(new DocumentationRequest
         {
             Assembly = assembly,
@@ -24,17 +25,20 @@ public sealed class DocumentationPipelineTests
             SnapshotPath = snapshot
         });
 
-        Assert.True(first.IsInitial);
-        Assert.Contains("Initial catalog generated.", first.Markdown, StringComparison.Ordinal);
-        Assert.True(File.Exists(firstOutput));
-        Assert.True(File.Exists(snapshot));
+        // Тогда
+        first.IsInitial.Should().BeTrue();
+        first.Markdown.Should().Contain("Каталог сформирован впервые.");
+        File.Exists(firstOutput).Should().BeTrue();
+        File.Exists(snapshot).Should().BeTrue();
 
+        // Дано
         var previous = SnapshotSerializer.Deserialize(File.ReadAllText(snapshot));
         var host = previous.Types.Single(t => t.Name == "SampleMailOptions").Properties.Single(p => p.Path == "Host");
         host.Rules.RemoveAll(r => r.Id == "MaximumLength:255");
-        host.Rules.Add(new SettingsRuleDocument { Id = "MaximumLength:128", Description = "Maximum length is 128." });
+        host.Rules.Add(new SettingsRuleDocument { Id = "MaximumLength:128", Description = "Максимальная длина: 128." });
         File.WriteAllText(snapshot, SnapshotSerializer.Serialize(previous));
 
+        // Когда
         var second = DocumentationPipeline.Run(new DocumentationRequest
         {
             Assembly = assembly,
@@ -44,9 +48,10 @@ public sealed class DocumentationPipelineTests
             SnapshotPath = snapshot
         });
 
-        Assert.False(second.IsInitial);
-        Assert.Contains("Added constraint `MaximumLength:255`", second.Markdown, StringComparison.Ordinal);
-        Assert.Contains("Removed constraint `MaximumLength:128`", second.Markdown, StringComparison.Ordinal);
+        // Тогда
+        second.IsInitial.Should().BeFalse();
+        second.Markdown.Should().Contain("Добавлено ограничение `MaximumLength:255`");
+        second.Markdown.Should().Contain("Удалено ограничение `MaximumLength:128`");
     }
 }
 
@@ -55,6 +60,7 @@ public sealed class DemoAppBuildTests
     [Fact]
     public void Building_demo_app_generates_settings_documentation()
     {
+        // Дано
         var repo = FindRepoRoot();
         var demo = Path.Combine(repo, "samples", "DemoApp");
         var start = new ProcessStartInfo("dotnet", "build --nologo -v:m")
@@ -65,25 +71,30 @@ public sealed class DemoAppBuildTests
             UseShellExecute = false
         };
 
+        // Когда
         using var process = Process.Start(start);
-        Assert.NotNull(process);
-        var stdout = process.StandardOutput.ReadToEnd();
+        process.Should().NotBeNull();
+        var stdout = process!.StandardOutput.ReadToEnd();
         var stderr = process.StandardError.ReadToEnd();
         process.WaitForExit();
-        Assert.True(process.ExitCode == 0, $"dotnet build failed.\n{stdout}\n{stderr}");
+
+        // Тогда
+        process.ExitCode.Should().Be(0, $"сборка завершилась с ошибкой.\n{stdout}\n{stderr}");
 
         var markdownPath = Path.Combine(demo, "docs", "settings.md");
         var snapshotPath = Path.Combine(demo, "docs", "settings.snapshot.json");
-        Assert.True(File.Exists(markdownPath), stdout);
-        Assert.True(File.Exists(snapshotPath), stdout);
+        File.Exists(markdownPath).Should().BeTrue(stdout);
+        File.Exists(snapshotPath).Should().BeTrue(stdout);
 
         var markdown = File.ReadAllText(markdownPath);
-        Assert.Contains("MailOptions", markdown, StringComparison.Ordinal);
-        Assert.Contains("StorageOptions", markdown, StringComparison.Ordinal);
-        Assert.Contains("MaximumLength:255", markdown, StringComparison.Ordinal);
-        Assert.Contains("Retry.MaxAttempts", markdown, StringComparison.Ordinal);
-        Assert.Contains("Recipients[].Email", markdown, StringComparison.Ordinal);
-        Assert.Contains("SMTP host name or address.", markdown, StringComparison.Ordinal);
+        markdown.Should().Contain("MailOptions");
+        markdown.Should().Contain("StorageOptions");
+        markdown.Should().Contain("MaximumLength:255");
+        markdown.Should().Contain("Retry.MaxAttempts");
+        markdown.Should().Contain("Recipients[].Email");
+        markdown.Should().Contain("Имя или адрес SMTP-хоста.");
+        markdown.Should().Contain("## Журнал изменений");
+        markdown.Should().Contain("# Настройки приложения");
     }
 
     private static string FindRepoRoot()
@@ -97,7 +108,7 @@ public sealed class DemoAppBuildTests
             directory = directory.Parent;
         }
 
-        throw new InvalidOperationException("Could not locate the repository root.");
+        throw new InvalidOperationException("Не удалось найти корень репозитория.");
     }
 }
 
@@ -119,7 +130,7 @@ internal sealed class TempDirectory : IDisposable
         }
         catch (IOException)
         {
-            // Best-effort cleanup for locked files on some agents.
+            // Лучшая попытка очистки, если файлы ещё заняты.
         }
     }
 }

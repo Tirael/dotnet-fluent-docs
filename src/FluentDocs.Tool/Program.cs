@@ -34,7 +34,7 @@ internal static class Program
         }
         catch (Exception ex)
         {
-            Console.Error.WriteLine($"FluentDocs failed: {ex}");
+            Console.Error.WriteLine($"FluentDocs завершился с ошибкой: {ex}");
             return 1;
         }
     }
@@ -42,15 +42,15 @@ internal static class Program
     private static void PrintHelp()
     {
         Console.WriteLine("""
-            FluentDocs — generate settings documentation from FluentValidation validators.
+            FluentDocs — генерация описания настроек по валидаторам FluentValidation.
 
-            Options:
-              --assembly <path>             Compiled application assembly (required)
-              --xml <path>                  XML documentation file from the compiler
-              --output <path>               Markdown output path (required)
-              --snapshot <path>             JSON snapshot path (previous snapshot is read from here when present)
-              --previous-snapshot <path>    Explicit previous JSON snapshot
-              --help                        Show this help
+            Параметры:
+              --assembly <path>             Собранная сборка приложения (обязательный)
+              --xml <path>                  XML-файл документации компилятора
+              --output <path>               Путь к Markdown-файлу (обязательный)
+              --snapshot <path>             Путь к JSON-снимку (если файл есть, он читается как предыдущий)
+              --previous-snapshot <path>    Явный предыдущий JSON-снимок
+              --help                        Показать эту справку
             """);
     }
 }
@@ -77,7 +77,7 @@ internal sealed class CliOptions
             }
 
             if (!arg.StartsWith("--", StringComparison.Ordinal))
-                throw new CliException($"Unexpected argument '{arg}'.");
+                throw new CliException($"Неожиданный аргумент '{arg}'.");
 
             var key = arg[2..];
             string? value = null;
@@ -100,9 +100,9 @@ internal sealed class CliOptions
         }
 
         if (!map.TryGetValue("assembly", out var assembly) || string.IsNullOrWhiteSpace(assembly))
-            throw new CliException("Missing required --assembly argument.");
+            throw new CliException("Отсутствует обязательный аргумент --assembly.");
         if (!map.TryGetValue("output", out var output) || string.IsNullOrWhiteSpace(output))
-            throw new CliException("Missing required --output argument.");
+            throw new CliException("Отсутствует обязательный аргумент --output.");
 
         map.TryGetValue("xml", out var xml);
         map.TryGetValue("snapshot", out var snapshot);

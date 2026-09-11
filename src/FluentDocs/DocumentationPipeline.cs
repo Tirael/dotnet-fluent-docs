@@ -1,54 +1,54 @@
 namespace FluentDocs;
 
 /// <summary>
-/// Inputs for generating settings documentation files.
+/// Входные данные для генерации файлов документации настроек.
 /// </summary>
 public sealed class DocumentationRequest
 {
     /// <summary>
-    /// Path to the compiled application assembly. Required when <see cref="Assembly"/> is not provided.
+    /// Путь к собранной сборке приложения. Обязателен, если не задано <see cref="Assembly"/>.
     /// </summary>
     public string AssemblyPath { get; init; } = string.Empty;
 
     /// <summary>
-    /// Optional already-loaded assembly. When set, the pipeline skips isolated load-context loading.
+    /// Уже загруженная сборка. Если задана, изолированная загрузка не выполняется.
     /// </summary>
     public System.Reflection.Assembly? Assembly { get; init; }
 
     /// <summary>
-    /// Optional XML documentation file produced by the compiler.
+    /// Необязательный XML-файл документации компилятора.
     /// </summary>
     public string? XmlDocumentationPath { get; init; }
 
     /// <summary>
-    /// Markdown output path.
+    /// Путь к итоговому Markdown-файлу.
     /// </summary>
     public required string OutputPath { get; init; }
 
     /// <summary>
-    /// JSON snapshot path written after generation. When the file already exists it is used as the previous snapshot.
+    /// Путь к JSON-снимку. Если файл уже есть, он используется как предыдущий снимок.
     /// </summary>
     public string? SnapshotPath { get; init; }
 
     /// <summary>
-    /// Optional explicit previous snapshot. Defaults to <see cref="SnapshotPath"/> when that file exists.
+    /// Явный путь к предыдущему снимку. По умолчанию совпадает с <see cref="SnapshotPath"/>, если тот файл существует.
     /// </summary>
     public string? PreviousSnapshotPath { get; init; }
 }
 
 /// <summary>
-/// Orchestrates catalog generation, changelog computation, and file writes.
+/// Собирает каталог, считает журнал изменений и записывает файлы.
 /// </summary>
 public static class DocumentationPipeline
 {
     /// <summary>
-    /// Generates documentation files and returns the in-memory results.
+    /// Генерирует файлы документации и возвращает результат в памяти.
     /// </summary>
     public static DocumentationResult Run(DocumentationRequest request, TextWriter? log = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         if (request.Assembly is null && string.IsNullOrWhiteSpace(request.AssemblyPath))
-            throw new ArgumentException("Assembly or AssemblyPath is required.", nameof(request));
+            throw new ArgumentException("Нужно указать Assembly или AssemblyPath.", nameof(request));
         log ??= TextWriter.Null;
 
         var catalog = request.Assembly is not null
@@ -67,9 +67,9 @@ public static class DocumentationPipeline
         if (!string.IsNullOrWhiteSpace(request.SnapshotPath))
             WriteAll(request.SnapshotPath, SnapshotSerializer.Serialize(catalog));
 
-        log.WriteLine($"FluentDocs: wrote {request.OutputPath}");
+        log.WriteLine($"FluentDocs: записан {request.OutputPath}");
         if (!string.IsNullOrWhiteSpace(request.SnapshotPath))
-            log.WriteLine($"FluentDocs: wrote {request.SnapshotPath}");
+            log.WriteLine($"FluentDocs: записан {request.SnapshotPath}");
 
         return new DocumentationResult(catalog, diff, markdown, isInitial);
     }
@@ -92,7 +92,7 @@ public static class DocumentationPipeline
 }
 
 /// <summary>
-/// In-memory result of a documentation generation run.
+/// Результат генерации документации в памяти.
 /// </summary>
 public sealed record DocumentationResult(
     SettingsCatalog Catalog,

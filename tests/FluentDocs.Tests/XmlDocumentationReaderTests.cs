@@ -7,6 +7,7 @@ public sealed class XmlDocumentationReaderTests
     [Fact]
     public void Load_reads_summary_and_strips_see_tags()
     {
+        // Дано
         var path = Path.Combine(Path.GetTempPath(), $"fluentdocs-{Guid.NewGuid():N}.xml");
         File.WriteAllText(path, """
             <?xml version="1.0"?>
@@ -14,9 +15,9 @@ public sealed class XmlDocumentationReaderTests
               <members>
                 <member name="T:Demo.MailOptions">
                   <summary>
-                    SMTP settings. See <see cref="T:Demo.RetryOptions"/>.
+                    Настройки SMTP. См. <see cref="T:Demo.RetryOptions"/>.
                   </summary>
-                  <remarks>Bound to Mail.</remarks>
+                  <remarks>Привязка к Mail.</remarks>
                 </member>
               </members>
             </doc>
@@ -24,11 +25,14 @@ public sealed class XmlDocumentationReaderTests
 
         try
         {
+            // Когда
             var reader = XmlDocumentationReader.Load(path);
             var docs = reader.Get("T:Demo.MailOptions");
-            Assert.NotNull(docs);
-            Assert.Equal("SMTP settings. See RetryOptions.", docs.Summary);
-            Assert.Equal("Bound to Mail.", docs.Remarks);
+
+            // Тогда
+            docs.Should().NotBeNull();
+            docs!.Summary.Should().Be("Настройки SMTP. См. RetryOptions.");
+            docs.Remarks.Should().Be("Привязка к Mail.");
         }
         finally
         {
@@ -39,10 +43,16 @@ public sealed class XmlDocumentationReaderTests
     [Fact]
     public void Normalize_collapses_whitespace()
     {
-        var text = XmlDocumentationReader.Normalize("""
-              Line one.
-              Line two.
-            """);
-        Assert.Equal("Line one. Line two.", text);
+        // Дано
+        var raw = """
+              Первая строка.
+              Вторая строка.
+            """;
+
+        // Когда
+        var text = XmlDocumentationReader.Normalize(raw);
+
+        // Тогда
+        text.Should().Be("Первая строка. Вторая строка.");
     }
 }

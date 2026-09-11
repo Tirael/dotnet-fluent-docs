@@ -1,13 +1,13 @@
 namespace FluentDocs.Diff;
 
 /// <summary>
-/// Compares two settings catalogs using normalized rule identifiers.
+/// Сравнивает два каталога настроек по нормализованным идентификаторам правил.
 /// </summary>
 public static class CatalogDiffer
 {
     /// <summary>
-    /// Returns the changes required to go from <paramref name="previous"/> to <paramref name="current"/>.
-    /// When <paramref name="previous"/> is <c>null</c>, the result has no changes (initial catalog).
+    /// Возвращает изменения от <paramref name="previous"/> к <paramref name="current"/>.
+    /// Если <paramref name="previous"/> равен <c>null</c>, изменений нет (первый каталог).
     /// </summary>
     public static CatalogDiff Diff(SettingsCatalog? previous, SettingsCatalog current)
     {
@@ -114,5 +114,5 @@ public static class CatalogDiffer
     }
 
     private static string Display(string? value)
-        => string.IsNullOrEmpty(value) ? "(none)" : value;
+        => string.IsNullOrEmpty(value) ? "(нет)" : value;
 }

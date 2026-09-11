@@ -1,12 +1,12 @@
 namespace FluentDocs;
 
 /// <summary>
-/// Difference between two settings catalogs.
+/// Отличие одного каталога настроек от другого.
 /// </summary>
 public sealed class CatalogDiff
 {
     /// <summary>
-    /// True when any type, property, comment, default, or rule changed.
+    /// Признак любых изменений типов, свойств, комментариев, значений по умолчанию или правил.
     /// </summary>
     public bool HasChanges =>
         AddedTypes.Count > 0
@@ -14,63 +14,63 @@ public sealed class CatalogDiff
         || ChangedTypes.Count > 0;
 
     /// <summary>
-    /// Settings types present only in the current catalog.
+    /// Типы, которые есть только в текущем каталоге.
     /// </summary>
     public List<SettingsTypeDocument> AddedTypes { get; set; } = [];
 
     /// <summary>
-    /// Settings types present only in the previous catalog.
+    /// Типы, которые есть только в предыдущем каталоге.
     /// </summary>
     public List<SettingsTypeDocument> RemovedTypes { get; set; } = [];
 
     /// <summary>
-    /// Settings types present in both catalogs with property or metadata changes.
+    /// Типы, присутствующие в обоих каталогах, у которых изменились свойства или метаданные.
     /// </summary>
     public List<TypeDiff> ChangedTypes { get; set; } = [];
 }
 
 /// <summary>
-/// Property-level changes for one settings type.
+/// Изменения свойств одного типа настроек.
 /// </summary>
 public sealed class TypeDiff
 {
     /// <summary>
-    /// Full name of the settings type.
+    /// Полное имя типа настроек.
     /// </summary>
     public string FullName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Configuration path, if any.
+    /// Путь конфигурации, если задан.
     /// </summary>
     public string? ConfigurationPath { get; set; }
 
     /// <summary>
-    /// Display-name change, formatted as <c>old → new</c>.
+    /// Изменение пути конфигурации в формате <c>старое → новое</c>.
     /// </summary>
     public string? ConfigurationPathChange { get; set; }
 
     /// <summary>
-    /// Type summary comment change, formatted as <c>old → new</c>.
+    /// Изменение описания типа в формате <c>старое → новое</c>.
     /// </summary>
     public string? SummaryChange { get; set; }
 
     /// <summary>
-    /// Properties added on this type.
+    /// Свойства, добавленные у этого типа.
     /// </summary>
     public List<SettingsPropertyDocument> AddedProperties { get; set; } = [];
 
     /// <summary>
-    /// Properties removed from this type.
+    /// Свойства, удалённые у этого типа.
     /// </summary>
     public List<SettingsPropertyDocument> RemovedProperties { get; set; } = [];
 
     /// <summary>
-    /// Properties whose type, default, comments, or rules changed.
+    /// Свойства, у которых изменились тип, значение по умолчанию, комментарии или правила.
     /// </summary>
     public List<PropertyDiff> ChangedProperties { get; set; } = [];
 
     /// <summary>
-    /// True when this type has any documented change.
+    /// Признак любых задокументированных изменений этого типа.
     /// </summary>
     public bool HasChanges =>
         ConfigurationPathChange is not null
@@ -81,47 +81,47 @@ public sealed class TypeDiff
 }
 
 /// <summary>
-/// Changes for a single property path.
+/// Изменения одного свойства.
 /// </summary>
 public sealed class PropertyDiff
 {
     /// <summary>
-    /// Dotted property path.
+    /// Dotted-путь свойства.
     /// </summary>
     public string Path { get; set; } = string.Empty;
 
     /// <summary>
-    /// CLR type change, formatted as <c>old → new</c>.
+    /// Изменение CLR-типа в формате <c>старое → новое</c>.
     /// </summary>
     public string? TypeChange { get; set; }
 
     /// <summary>
-    /// Default value change, formatted as <c>old → new</c>.
+    /// Изменение значения по умолчанию в формате <c>старое → новое</c>.
     /// </summary>
     public string? DefaultChange { get; set; }
 
     /// <summary>
-    /// Summary comment change, formatted as <c>old → new</c>.
+    /// Изменение описания в формате <c>старое → новое</c>.
     /// </summary>
     public string? SummaryChange { get; set; }
 
     /// <summary>
-    /// Rules added to the property.
+    /// Правила, добавленные к свойству.
     /// </summary>
     public List<SettingsRuleDocument> AddedRules { get; set; } = [];
 
     /// <summary>
-    /// Rules removed from the property.
+    /// Правила, удалённые у свойства.
     /// </summary>
     public List<SettingsRuleDocument> RemovedRules { get; set; } = [];
 
     /// <summary>
-    /// Rules with the same identifier whose description or message changed.
+    /// Правила с тем же идентификатором, у которых изменились описание или сообщение.
     /// </summary>
     public List<RuleChange> ChangedRules { get; set; } = [];
 
     /// <summary>
-    /// True when this property has any documented change.
+    /// Признак любых задокументированных изменений этого свойства.
     /// </summary>
     public bool HasChanges =>
         TypeChange is not null
@@ -133,22 +133,22 @@ public sealed class PropertyDiff
 }
 
 /// <summary>
-/// A rule whose identifier stayed the same but whose text changed.
+/// Правило, идентификатор которого не изменился, но изменился текст.
 /// </summary>
 public sealed class RuleChange
 {
     /// <summary>
-    /// Rule identifier.
+    /// Идентификатор правила.
     /// </summary>
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Previous rule snapshot.
+    /// Предыдущее состояние правила.
     /// </summary>
     public SettingsRuleDocument Previous { get; set; } = new();
 
     /// <summary>
-    /// Current rule snapshot.
+    /// Текущее состояние правила.
     /// </summary>
     public SettingsRuleDocument Current { get; set; } = new();
 }

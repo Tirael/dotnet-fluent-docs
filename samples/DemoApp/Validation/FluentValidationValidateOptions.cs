@@ -4,7 +4,7 @@ using Microsoft.Extensions.Options;
 namespace DemoApp.Validation;
 
 /// <summary>
-/// Adapts a FluentValidation validator to the Options validation pipeline.
+/// Адаптер валидатора FluentValidation к конвейеру проверки Options.
 /// </summary>
 public sealed class FluentValidationValidateOptions<TOptions>(IValidator<TOptions> validator) : IValidateOptions<TOptions>
     where TOptions : class

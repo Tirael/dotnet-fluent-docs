@@ -1,194 +1,194 @@
-# Application settings
+# Настройки приложения
 
-Generated from FluentValidation validators and XML documentation comments.
+Сформировано по валидаторам FluentValidation и XML-комментариям к классам настроек.
 
-## Changelog
+## Журнал изменений
 
-No settings changes since the previous snapshot.
+Изменений настроек относительно предыдущего снимка нет.
 
-## Catalog
+## Каталог
 
 ### MailOptions (`Mail`)
 
-SMTP mail delivery settings.
+Настройки SMTP-отправки почты.
 
-Bound to the Mail configuration section.
+Привязываются к секции конфигурации Mail.
 
-**Type:** `DemoApp.Options.MailOptions`
+**Тип:** `DemoApp.Options.MailOptions`
 
 #### AllowedSenderPatterns
 
-Regular expressions that outgoing sender addresses must match.
+Регулярные выражения, которым должны соответствовать адреса отправителя.
 
-- **Type:** `List<string>`
-- **Default:** `[]`
-- **Constraints:** none discovered
+- **Тип:** `List<string>`
+- **По умолчанию:** `[]`
+- **Ограничения:** не обнаружены
 
 #### AllowedSenderPatterns[]
 
-Regular expressions that outgoing sender addresses must match.
+Регулярные выражения, которым должны соответствовать адреса отправителя.
 
-- **Type:** `string[]`
-- **Default:** `[]`
-- **Constraints:**
-  - Must match pattern `^.*$`. (`Matches:^.*$`)
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string[]`
+- **По умолчанию:** `[]`
+- **Ограничения:**
+  - Должно соответствовать шаблону `^.*$`. (`Matches:^.*$`)
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### EnableTls
 
-When true, the client starts a TLS session after connect.
+Если true, после подключения клиент поднимает TLS.
 
-- **Type:** `bool`
-- **Default:** `true`
-- **Constraints:** none discovered
+- **Тип:** `bool`
+- **По умолчанию:** `true`
+- **Ограничения:** не обнаружены
 
 #### From
 
-Envelope sender address used for outgoing mail.
+Адрес отправителя исходящей почты.
 
-- **Type:** `string`
-- **Default:** `"noreply@localhost"`
-- **Constraints:**
-  - Must be a valid email address. (`EmailAddress`)
-    - Message: From must be a valid email address.
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `"noreply@localhost"`
+- **Ограничения:**
+  - Должно быть корректным адресом электронной почты. (`EmailAddress`)
+    - Сообщение: From должен быть корректным адресом электронной почты.
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### Host
 
-SMTP host name or address.
+Имя или адрес SMTP-хоста.
 
-- **Type:** `string`
-- **Default:** `"localhost"`
-- **Constraints:**
-  - Maximum length is 255. (`MaximumLength:255`)
-    - Message: SMTP host is required and must be at most 255 characters.
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `"localhost"`
+- **Ограничения:**
+  - Максимальная длина: 255. (`MaximumLength:255`)
+    - Сообщение: SMTP-хост обязателен и не длиннее 255 символов.
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### Port
 
-SMTP TCP port.
+TCP-порт SMTP.
 
-- **Type:** `int`
-- **Default:** `25`
-- **Constraints:**
-  - Must be greater than or equal to 465. _(conditional)_ (`GreaterThanOrEqual:465`)
-    - Message: TLS mail typically uses port 465 or 587.
-  - Must be between 1 and 65535 (inclusive). (`InclusiveBetween:1-65535`)
+- **Тип:** `int`
+- **По умолчанию:** `25`
+- **Ограничения:**
+  - Должно быть не меньше 465. _(условно)_ (`GreaterThanOrEqual:465`)
+    - Сообщение: Для TLS обычно используют порт 465 или 587.
+  - Значение должно быть от 1 до 65535 включительно. (`InclusiveBetween:1-65535`)
 
 #### Recipients
 
-Recipients that always receive a copy of system notifications.
+Получатели, которые всегда получают копию системных уведомлений.
 
-- **Type:** `List<RecipientOptions>`
-- **Default:** `[]`
-- **Constraints:**
-  - Must not be null. (`NotNull`)
+- **Тип:** `List<RecipientOptions>`
+- **По умолчанию:** `[]`
+- **Ограничения:**
+  - Не должно быть null. (`NotNull`)
 
 #### Recipients[]
 
-Recipients that always receive a copy of system notifications.
+Получатели, которые всегда получают копию системных уведомлений.
 
-- **Type:** `RecipientOptions[]`
-- **Default:** `[]`
-- **Constraints:** none discovered
+- **Тип:** `RecipientOptions[]`
+- **По умолчанию:** `[]`
+- **Ограничения:** не обнаружены
 
 #### Recipients[].Email
 
-Recipient email address.
+Адрес электронной почты получателя.
 
-- **Type:** `string`
-- **Constraints:**
-  - Must be a valid email address. (`EmailAddress`)
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **Ограничения:**
+  - Должно быть корректным адресом электронной почты. (`EmailAddress`)
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### Recipients[].Name
 
-Optional display name.
+Необязательное отображаемое имя.
 
-- **Type:** `string`
-- **Constraints:**
-  - Maximum length is 100. _(conditional)_ (`MaximumLength:100`)
+- **Тип:** `string`
+- **Ограничения:**
+  - Максимальная длина: 100. _(условно)_ (`MaximumLength:100`)
 
 #### Retry
 
-Retry policy applied after a failed send.
+Политика повторов после неудачной отправки.
 
-- **Type:** `RetryOptions`
-- **Constraints:** none discovered
+- **Тип:** `RetryOptions`
+- **Ограничения:** не обнаружены
 
 #### Retry.DelayMilliseconds
 
-Delay between attempts in milliseconds.
+Пауза между попытками в миллисекундах.
 
-- **Type:** `int`
-- **Default:** `200`
-- **Constraints:**
-  - Must be greater than 0. (`GreaterThan:0`)
-  - Must be less than or equal to 60000. (`LessThanOrEqual:60000`)
+- **Тип:** `int`
+- **По умолчанию:** `200`
+- **Ограничения:**
+  - Должно быть больше 0. (`GreaterThan:0`)
+  - Должно быть не больше 60000. (`LessThanOrEqual:60000`)
 
 #### Retry.MaxAttempts
 
-Maximum number of send attempts, including the first try.
+Максимальное число попыток отправки, включая первую.
 
-- **Type:** `int`
-- **Default:** `3`
-- **Constraints:**
-  - Must be between 1 and 10 (inclusive). (`InclusiveBetween:1-10`)
+- **Тип:** `int`
+- **По умолчанию:** `3`
+- **Ограничения:**
+  - Значение должно быть от 1 до 10 включительно. (`InclusiveBetween:1-10`)
 
 #### TimeoutSeconds
 
-Send timeout in seconds.
+Таймаут отправки в секундах.
 
-- **Type:** `int`
-- **Default:** `30`
-- **Constraints:**
-  - Must be between 1 and 300 (inclusive). (`InclusiveBetween:1-300`)
+- **Тип:** `int`
+- **По умолчанию:** `30`
+- **Ограничения:**
+  - Значение должно быть от 1 до 300 включительно. (`InclusiveBetween:1-300`)
 
 ### StorageOptions (`Storage`)
 
-File storage settings for demo artifacts.
+Настройки файлового хранилища демо-артефактов.
 
-**Type:** `DemoApp.Options.StorageOptions`
+**Тип:** `DemoApp.Options.StorageOptions`
 
 #### BucketName
 
-Object-storage bucket name. Required when Provider is S3.
+Имя бакета объектного хранилища. Обязательно, если Provider равен S3.
 
-- **Type:** `string`
-- **Default:** `null`
-- **Constraints:**
-  - Must match pattern `^[a-z0-9.-]{3,63}$`. _(conditional)_ (`Matches:^[a-z0-9.-]{3,63}$`)
-    - Message: BucketName must be a valid S3 bucket name.
-  - Must not be empty. _(conditional)_ (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `null`
+- **Ограничения:**
+  - Должно соответствовать шаблону `^[a-z0-9.-]{3,63}$`. _(условно)_ (`Matches:^[a-z0-9.-]{3,63}$`)
+    - Сообщение: BucketName должен быть корректным именем бакета S3.
+  - Не должно быть пустым. _(условно)_ (`NotEmpty`)
 
 #### MaxFileSizeBytes
 
-Maximum uploaded file size in bytes.
+Максимальный размер загружаемого файла в байтах.
 
-- **Type:** `long`
-- **Default:** `1048576`
-- **Constraints:**
-  - Must be between 1 and 104857600 (inclusive). (`InclusiveBetween:1-104857600`)
+- **Тип:** `long`
+- **По умолчанию:** `1048576`
+- **Ограничения:**
+  - Значение должно быть от 1 до 104857600 включительно. (`InclusiveBetween:1-104857600`)
 
 #### Provider
 
-Storage backend identifier. Supported values: Local, S3.
+Идентификатор хранилища. Допустимые значения: Local, S3.
 
-- **Type:** `string`
-- **Default:** `"Local"`
-- **Constraints:**
-  - Must satisfy a custom predicate. (`Must`)
-    - Message: Provider must be Local or S3.
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `"Local"`
+- **Ограничения:**
+  - Должно удовлетворять пользовательскому условию. (`Must`)
+    - Сообщение: Provider должен быть Local или S3.
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### RootPath
 
-Absolute directory used when Provider is Local.
+Абсолютный каталог, если Provider равен Local.
 
-- **Type:** `string`
-- **Default:** `"/var/demo/data"`
-- **Constraints:**
-  - Must satisfy a custom predicate. (`Must`)
-    - Message: RootPath must be an absolute Unix path.
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `"/var/demo/data"`
+- **Ограничения:**
+  - Должно удовлетворять пользовательскому условию. (`Must`)
+    - Сообщение: RootPath должен быть абсолютным Unix-путём.
+  - Не должно быть пустым. (`NotEmpty`)
 

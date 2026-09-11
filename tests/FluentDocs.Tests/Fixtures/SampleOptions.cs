@@ -4,87 +4,87 @@ using FluentValidation;
 namespace FluentDocs.Tests.Fixtures;
 
 /// <summary>
-/// SMTP-like settings used as a generator fixture.
+/// SMTP-настройки для фикстуры генератора.
 /// </summary>
 [SettingsDocs("Mail")]
 public sealed class SampleMailOptions
 {
     /// <summary>
-    /// SMTP host name.
+    /// Имя SMTP-хоста.
     /// </summary>
     public string Host { get; set; } = "localhost";
 
     /// <summary>
-    /// SMTP port.
+    /// Порт SMTP.
     /// </summary>
     public int Port { get; set; } = 25;
 
     /// <summary>
-    /// Sender address.
+    /// Адрес отправителя.
     /// </summary>
     public string From { get; set; } = "noreply@localhost";
 
     /// <summary>
-    /// Enables TLS after connect.
+    /// Включает TLS после подключения.
     /// </summary>
     public bool EnableTls { get; set; }
 
     /// <summary>
-    /// Nested retry policy.
+    /// Вложенная политика повторов.
     /// </summary>
     public SampleRetryOptions Retry { get; set; } = new();
 
     /// <summary>
-    /// Notification recipients.
+    /// Получатели уведомлений.
     /// </summary>
     public List<SampleRecipientOptions> Recipients { get; set; } = [];
 }
 
 /// <summary>
-/// Retry policy fixture.
+/// Фикстура политики повторов.
 /// </summary>
 public sealed class SampleRetryOptions
 {
     /// <summary>
-    /// Maximum attempts.
+    /// Максимальное число попыток.
     /// </summary>
     public int MaxAttempts { get; set; } = 3;
 
     /// <summary>
-    /// Delay in milliseconds.
+    /// Пауза в миллисекундах.
     /// </summary>
     public int DelayMilliseconds { get; set; } = 200;
 }
 
 /// <summary>
-/// Recipient fixture.
+/// Фикстура получателя.
 /// </summary>
 public sealed class SampleRecipientOptions
 {
     /// <summary>
-    /// Email address.
+    /// Адрес электронной почты.
     /// </summary>
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// Display name.
+    /// Отображаемое имя.
     /// </summary>
     public string? Name { get; set; }
 }
 
 /// <summary>
-/// Storage settings fixture.
+/// Фикстура настроек хранилища.
 /// </summary>
 [SettingsDocs("Storage")]
 public sealed class SampleStorageOptions
 {
     /// <summary>
-    /// Absolute root path.
+    /// Абсолютный корневой путь.
     /// </summary>
     public string RootPath { get; set; } = "/data";
 
     /// <summary>
-    /// Maximum file size in bytes.
+    /// Максимальный размер файла в байтах.
     /// </summary>
     public int MaxFileSizeBytes { get; set; } = 1024;
 }
@@ -96,7 +96,7 @@ public sealed class SampleMailOptionsValidator : AbstractValidator<SampleMailOpt
         RuleFor(x => x.Host)
             .NotEmpty()
             .MaximumLength(255)
-            .WithMessage("SMTP host is required and must be at most 255 characters.");
+            .WithMessage("SMTP-хост обязателен и не длиннее 255 символов.");
 
         RuleFor(x => x.Port)
             .InclusiveBetween(1, 65_535);

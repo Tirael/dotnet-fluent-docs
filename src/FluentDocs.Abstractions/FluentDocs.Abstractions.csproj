@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>FluentDocs</RootNamespace>
     <PackageId>FluentDocs.Abstractions</PackageId>
-    <Description>Marker attributes for FluentDocs settings documentation generation.</Description>
+    <Description>Маркерные атрибуты для генерации документации настроек FluentDocs.</Description>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

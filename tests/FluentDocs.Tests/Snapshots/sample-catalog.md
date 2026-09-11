@@ -1,138 +1,138 @@
-# Application settings
+# Настройки приложения
 
-Generated from FluentValidation validators and XML documentation comments.
+Сформировано по валидаторам FluentValidation и XML-комментариям к классам настроек.
 
-## Changelog
+## Журнал изменений
 
-Initial catalog generated.
+Каталог сформирован впервые.
 
-## Catalog
+## Каталог
 
 ### SampleMailOptions (`Mail`)
 
-SMTP-like settings used as a generator fixture.
+SMTP-настройки для фикстуры генератора.
 
-**Type:** `FluentDocs.Tests.Fixtures.SampleMailOptions`
+**Тип:** `FluentDocs.Tests.Fixtures.SampleMailOptions`
 
 #### EnableTls
 
-Enables TLS after connect.
+Включает TLS после подключения.
 
-- **Type:** `bool`
-- **Default:** `false`
-- **Constraints:** none discovered
+- **Тип:** `bool`
+- **По умолчанию:** `false`
+- **Ограничения:** не обнаружены
 
 #### From
 
-Sender address.
+Адрес отправителя.
 
-- **Type:** `string`
-- **Default:** `"noreply@localhost"`
-- **Constraints:**
-  - Must be a valid email address. (`EmailAddress`)
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `"noreply@localhost"`
+- **Ограничения:**
+  - Должно быть корректным адресом электронной почты. (`EmailAddress`)
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### Host
 
-SMTP host name.
+Имя SMTP-хоста.
 
-- **Type:** `string`
-- **Default:** `"localhost"`
-- **Constraints:**
-  - Maximum length is 255. (`MaximumLength:255`)
-    - Message: SMTP host is required and must be at most 255 characters.
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `"localhost"`
+- **Ограничения:**
+  - Максимальная длина: 255. (`MaximumLength:255`)
+    - Сообщение: SMTP-хост обязателен и не длиннее 255 символов.
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### Port
 
-SMTP port.
+Порт SMTP.
 
-- **Type:** `int`
-- **Default:** `25`
-- **Constraints:**
-  - Must be greater than or equal to 465. _(conditional)_ (`GreaterThanOrEqual:465`)
-  - Must be between 1 and 65535 (inclusive). (`InclusiveBetween:1-65535`)
+- **Тип:** `int`
+- **По умолчанию:** `25`
+- **Ограничения:**
+  - Должно быть не меньше 465. _(условно)_ (`GreaterThanOrEqual:465`)
+  - Значение должно быть от 1 до 65535 включительно. (`InclusiveBetween:1-65535`)
 
 #### Recipients
 
-Notification recipients.
+Получатели уведомлений.
 
-- **Type:** `List<SampleRecipientOptions>`
-- **Default:** `[]`
-- **Constraints:** none discovered
+- **Тип:** `List<SampleRecipientOptions>`
+- **По умолчанию:** `[]`
+- **Ограничения:** не обнаружены
 
 #### Recipients[]
 
-Notification recipients.
+Получатели уведомлений.
 
-- **Type:** `SampleRecipientOptions[]`
-- **Default:** `[]`
-- **Constraints:** none discovered
+- **Тип:** `SampleRecipientOptions[]`
+- **По умолчанию:** `[]`
+- **Ограничения:** не обнаружены
 
 #### Recipients[].Email
 
-Email address.
+Адрес электронной почты.
 
-- **Type:** `string`
-- **Constraints:**
-  - Must be a valid email address. (`EmailAddress`)
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **Ограничения:**
+  - Должно быть корректным адресом электронной почты. (`EmailAddress`)
+  - Не должно быть пустым. (`NotEmpty`)
 
 #### Recipients[].Name
 
-Display name.
+Отображаемое имя.
 
-- **Type:** `string`
-- **Constraints:**
-  - Maximum length is 100. (`MaximumLength:100`)
+- **Тип:** `string`
+- **Ограничения:**
+  - Максимальная длина: 100. (`MaximumLength:100`)
 
 #### Retry
 
-Nested retry policy.
+Вложенная политика повторов.
 
-- **Type:** `SampleRetryOptions`
-- **Constraints:** none discovered
+- **Тип:** `SampleRetryOptions`
+- **Ограничения:** не обнаружены
 
 #### Retry.DelayMilliseconds
 
-Delay in milliseconds.
+Пауза в миллисекундах.
 
-- **Type:** `int`
-- **Default:** `200`
-- **Constraints:**
-  - Must be greater than 0. (`GreaterThan:0`)
+- **Тип:** `int`
+- **По умолчанию:** `200`
+- **Ограничения:**
+  - Должно быть больше 0. (`GreaterThan:0`)
 
 #### Retry.MaxAttempts
 
-Maximum attempts.
+Максимальное число попыток.
 
-- **Type:** `int`
-- **Default:** `3`
-- **Constraints:**
-  - Must be between 1 and 10 (inclusive). (`InclusiveBetween:1-10`)
+- **Тип:** `int`
+- **По умолчанию:** `3`
+- **Ограничения:**
+  - Значение должно быть от 1 до 10 включительно. (`InclusiveBetween:1-10`)
 
 ### SampleStorageOptions (`Storage`)
 
-Storage settings fixture.
+Фикстура настроек хранилища.
 
-**Type:** `FluentDocs.Tests.Fixtures.SampleStorageOptions`
+**Тип:** `FluentDocs.Tests.Fixtures.SampleStorageOptions`
 
 #### MaxFileSizeBytes
 
-Maximum file size in bytes.
+Максимальный размер файла в байтах.
 
-- **Type:** `int`
-- **Default:** `1024`
-- **Constraints:**
-  - Must be between 1 and 10000000 (inclusive). (`InclusiveBetween:1-10000000`)
+- **Тип:** `int`
+- **По умолчанию:** `1024`
+- **Ограничения:**
+  - Значение должно быть от 1 до 10000000 включительно. (`InclusiveBetween:1-10000000`)
 
 #### RootPath
 
-Absolute root path.
+Абсолютный корневой путь.
 
-- **Type:** `string`
-- **Default:** `"/data"`
-- **Constraints:**
-  - Must match pattern `^/`. (`Matches:^/`)
-  - Must not be empty. (`NotEmpty`)
+- **Тип:** `string`
+- **По умолчанию:** `"/data"`
+- **Ограничения:**
+  - Должно соответствовать шаблону `^/`. (`Matches:^/`)
+  - Не должно быть пустым. (`NotEmpty`)
 

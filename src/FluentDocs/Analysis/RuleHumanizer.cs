@@ -36,115 +36,115 @@ internal static class RuleHumanizer
         switch (typeName)
         {
             case "NotNullValidator":
-                return ("NotNull", "Must not be null.");
+                return ("NotNull", "Не должно быть null.");
             case "NotEmptyValidator":
-                return ("NotEmpty", "Must not be empty.");
+                return ("NotEmpty", "Не должно быть пустым.");
             case "NullValidator":
-                return ("Null", "Must be null.");
+                return ("Null", "Должно быть null.");
             case "EmptyValidator":
-                return ("Empty", "Must be empty.");
+                return ("Empty", "Должно быть пустым.");
             case "MaximumLengthValidator":
                 {
                     var max = GetInt(validator, "Max");
-                    return ($"MaximumLength:{max}", $"Maximum length is {max}.");
+                    return ($"MaximumLength:{max}", $"Максимальная длина: {max}.");
                 }
             case "MinimumLengthValidator":
                 {
                     var min = GetInt(validator, "Min");
-                    return ($"MinimumLength:{min}", $"Minimum length is {min}.");
+                    return ($"MinimumLength:{min}", $"Минимальная длина: {min}.");
                 }
             case "ExactLengthValidator":
                 {
                     var length = GetInt(validator, "Max");
-                    return ($"ExactLength:{length}", $"Length must be {length}.");
+                    return ($"ExactLength:{length}", $"Длина должна быть равна {length}.");
                 }
             case "LengthValidator":
                 {
                     var min = GetInt(validator, "Min");
                     var max = GetInt(validator, "Max");
-                    return ($"Length:{min}-{max}", $"Length must be between {min} and {max}.");
+                    return ($"Length:{min}-{max}", $"Длина должна быть от {min} до {max}.");
                 }
             case "InclusiveBetweenValidator":
                 {
                     var from = FormatCompare(GetProperty(validator, "From"));
                     var to = FormatCompare(GetProperty(validator, "To"));
-                    return ($"InclusiveBetween:{from}-{to}", $"Must be between {from} and {to} (inclusive).");
+                    return ($"InclusiveBetween:{from}-{to}", $"Значение должно быть от {from} до {to} включительно.");
                 }
             case "ExclusiveBetweenValidator":
                 {
                     var from = FormatCompare(GetProperty(validator, "From"));
                     var to = FormatCompare(GetProperty(validator, "To"));
-                    return ($"ExclusiveBetween:{from}-{to}", $"Must be between {from} and {to} (exclusive).");
+                    return ($"ExclusiveBetween:{from}-{to}", $"Значение должно быть между {from} и {to} исключительно.");
                 }
             case "GreaterThanValidator":
                 {
                     var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"GreaterThan:{value}", $"Must be greater than {value}.");
+                    return ($"GreaterThan:{value}", $"Должно быть больше {value}.");
                 }
             case "GreaterThanOrEqualValidator":
                 {
                     var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"GreaterThanOrEqual:{value}", $"Must be greater than or equal to {value}.");
+                    return ($"GreaterThanOrEqual:{value}", $"Должно быть не меньше {value}.");
                 }
             case "LessThanValidator":
                 {
                     var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"LessThan:{value}", $"Must be less than {value}.");
+                    return ($"LessThan:{value}", $"Должно быть меньше {value}.");
                 }
             case "LessThanOrEqualValidator":
                 {
                     var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"LessThanOrEqual:{value}", $"Must be less than or equal to {value}.");
+                    return ($"LessThanOrEqual:{value}", $"Должно быть не больше {value}.");
                 }
             case "EqualValidator":
                 {
                     var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"Equal:{value}", $"Must equal {value}.");
+                    return ($"Equal:{value}", $"Должно быть равно {value}.");
                 }
             case "NotEqualValidator":
                 {
                     var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"NotEqual:{value}", $"Must not equal {value}.");
+                    return ($"NotEqual:{value}", $"Не должно быть равно {value}.");
                 }
             case "RegularExpressionValidator":
                 {
                     var expression = GetProperty(validator, "Expression")?.ToString() ?? GetProperty(validator, "Regex")?.ToString() ?? "";
-                    return ($"Matches:{expression}", $"Must match pattern `{expression}`.");
+                    return ($"Matches:{expression}", $"Должно соответствовать шаблону `{expression}`.");
                 }
             case "AspNetCoreCompatibleEmailValidator":
             case "EmailValidator":
-                return ("EmailAddress", "Must be a valid email address.");
+                return ("EmailAddress", "Должно быть корректным адресом электронной почты.");
             case "CreditCardValidator":
-                return ("CreditCard", "Must be a valid credit card number.");
+                return ("CreditCard", "Должно быть корректным номером банковской карты.");
             case "EnumValidator":
-                return ("Enum", "Must be a valid enum value.");
+                return ("Enum", "Должно быть допустимым значением перечисления.");
             case "ScalePrecisionValidator":
                 {
                     var scale = GetInt(validator, "Scale");
                     var precision = GetInt(validator, "Precision");
-                    return ($"ScalePrecision:{scale},{precision}", $"Must have a scale of {scale} and precision of {precision}.");
+                    return ($"ScalePrecision:{scale},{precision}", $"Масштаб {scale}, точность {precision}.");
                 }
             case "PredicateValidator":
             case "AsyncPredicateValidator":
                 {
-                    return ("Must", "Must satisfy a custom predicate.");
+                    return ("Must", "Должно удовлетворять пользовательскому условию.");
                 }
             default:
                 {
                     if (Implements(validator, "INotEmptyValidator"))
-                        return ("NotEmpty", "Must not be empty.");
+                        return ("NotEmpty", "Не должно быть пустым.");
                     if (Implements(validator, "INotNullValidator"))
-                        return ("NotNull", "Must not be null.");
+                        return ("NotNull", "Не должно быть null.");
                     if (Implements(validator, "IEmailValidator"))
-                        return ("EmailAddress", "Must be a valid email address.");
+                        return ("EmailAddress", "Должно быть корректным адресом электронной почты.");
                     if (Implements(validator, "IRegularExpressionValidator"))
                     {
                         var expression = GetProperty(validator, "Expression")?.ToString() ?? "";
-                        return ($"Matches:{expression}", $"Must match pattern `{expression}`.");
+                        return ($"Matches:{expression}", $"Должно соответствовать шаблону `{expression}`.");
                     }
 
                     var friendly = SplitName(string.IsNullOrWhiteSpace(name) ? typeName : name);
-                    return (typeName, $"Must satisfy `{friendly}`.");
+                    return (typeName, $"Должно удовлетворять `{friendly}`.");
                 }
         }
     }

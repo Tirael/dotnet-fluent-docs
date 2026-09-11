@@ -9,7 +9,7 @@
           AfterTargets="Build"
           Condition="'$(FluentDocsEnabled)' == 'true' and '$(DesignTimeBuild)' != 'true' and '$(BuildingProject)' == 'true'">
     <Error Condition="!Exists('$(FluentDocsToolDll)')"
-           Text="FluentDocs tool was not found at '$(FluentDocsToolDll)'. Build FluentDocs.Tool first or set FluentDocsToolDll." />
+           Text="Инструмент FluentDocs не найден по пути '$(FluentDocsToolDll)'. Сначала соберите FluentDocs.Tool или задайте FluentDocsToolDll." />
 
     <PropertyGroup>
       <_FluentDocsXmlArg></_FluentDocsXmlArg>

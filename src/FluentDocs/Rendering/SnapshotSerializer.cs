@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace FluentDocs.Rendering;
 
 /// <summary>
-/// Serializes catalogs to the canonical JSON snapshot format.
+/// Сериализует каталоги в канонический JSON-снимок.
 /// </summary>
 public static class SnapshotSerializer
 {
@@ -17,15 +17,15 @@ public static class SnapshotSerializer
     };
 
     /// <summary>
-    /// Serializes a catalog to indented JSON.
+    /// Сериализует каталог в форматированный JSON.
     /// </summary>
     public static string Serialize(SettingsCatalog catalog)
         => JsonSerializer.Serialize(catalog, Options);
 
     /// <summary>
-    /// Deserializes a catalog snapshot.
+    /// Десериализует снимок каталога.
     /// </summary>
     public static SettingsCatalog Deserialize(string json)
         => JsonSerializer.Deserialize<SettingsCatalog>(json, Options)
-           ?? throw new InvalidOperationException("Settings snapshot JSON deserialized to null.");
+           ?? throw new InvalidOperationException("JSON-снимок настроек десериализовался в null.");
 }

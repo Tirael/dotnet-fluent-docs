@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>FluentDocs</RootNamespace>
     <PackageId>FluentDocs</PackageId>
-    <Description>Analyzes FluentValidation validators and XML comments to produce a settings catalog and changelog.</Description>
+    <Description>Анализирует валидаторы FluentValidation и XML-комментарии и формирует каталог настроек с журналом изменений.</Description>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>

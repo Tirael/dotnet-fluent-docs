@@ -3,110 +3,110 @@ using FluentDocs;
 namespace DemoApp.Options;
 
 /// <summary>
-/// SMTP mail delivery settings.
+/// Настройки SMTP-отправки почты.
 /// </summary>
 /// <remarks>
-/// Bound to the <c>Mail</c> configuration section.
+/// Привязываются к секции конфигурации <c>Mail</c>.
 /// </remarks>
 [SettingsDocs("Mail")]
 public sealed class MailOptions
 {
     /// <summary>
-    /// SMTP host name or address.
+    /// Имя или адрес SMTP-хоста.
     /// </summary>
     public string Host { get; set; } = "localhost";
 
     /// <summary>
-    /// SMTP TCP port.
+    /// TCP-порт SMTP.
     /// </summary>
     public int Port { get; set; } = 25;
 
     /// <summary>
-    /// Envelope sender address used for outgoing mail.
+    /// Адрес отправителя исходящей почты.
     /// </summary>
     public string From { get; set; } = "noreply@localhost";
 
     /// <summary>
-    /// When true, the client starts a TLS session after connect.
+    /// Если true, после подключения клиент поднимает TLS.
     /// </summary>
     public bool EnableTls { get; set; } = true;
 
     /// <summary>
-    /// Send timeout in seconds.
+    /// Таймаут отправки в секундах.
     /// </summary>
     public int TimeoutSeconds { get; set; } = 30;
 
     /// <summary>
-    /// Retry policy applied after a failed send.
+    /// Политика повторов после неудачной отправки.
     /// </summary>
     public RetryOptions Retry { get; set; } = new();
 
     /// <summary>
-    /// Recipients that always receive a copy of system notifications.
+    /// Получатели, которые всегда получают копию системных уведомлений.
     /// </summary>
     public List<RecipientOptions> Recipients { get; set; } = [];
 
     /// <summary>
-    /// Regular expressions that outgoing sender addresses must match.
+    /// Регулярные выражения, которым должны соответствовать адреса отправителя.
     /// </summary>
     public List<string> AllowedSenderPatterns { get; set; } = [];
 }
 
 /// <summary>
-/// Retry policy for transient mail failures.
+/// Политика повторов при временных сбоях отправки почты.
 /// </summary>
 public sealed class RetryOptions
 {
     /// <summary>
-    /// Maximum number of send attempts, including the first try.
+    /// Максимальное число попыток отправки, включая первую.
     /// </summary>
     public int MaxAttempts { get; set; } = 3;
 
     /// <summary>
-    /// Delay between attempts in milliseconds.
+    /// Пауза между попытками в миллисекундах.
     /// </summary>
     public int DelayMilliseconds { get; set; } = 200;
 }
 
 /// <summary>
-/// A notification recipient.
+/// Получатель уведомления.
 /// </summary>
 public sealed class RecipientOptions
 {
     /// <summary>
-    /// Recipient email address.
+    /// Адрес электронной почты получателя.
     /// </summary>
     public string Email { get; set; } = string.Empty;
 
     /// <summary>
-    /// Optional display name.
+    /// Необязательное отображаемое имя.
     /// </summary>
     public string? Name { get; set; }
 }
 
 /// <summary>
-/// File storage settings for demo artifacts.
+/// Настройки файлового хранилища демо-артефактов.
 /// </summary>
 [SettingsDocs("Storage")]
 public sealed class StorageOptions
 {
     /// <summary>
-    /// Storage backend identifier. Supported values: Local, S3.
+    /// Идентификатор хранилища. Допустимые значения: Local, S3.
     /// </summary>
     public string Provider { get; set; } = "Local";
 
     /// <summary>
-    /// Absolute directory used when <see cref="Provider"/> is Local.
+    /// Абсолютный каталог, если <see cref="Provider"/> равен Local.
     /// </summary>
     public string RootPath { get; set; } = "/var/demo/data";
 
     /// <summary>
-    /// Maximum uploaded file size in bytes.
+    /// Максимальный размер загружаемого файла в байтах.
     /// </summary>
     public long MaxFileSizeBytes { get; set; } = 1_048_576;
 
     /// <summary>
-    /// Object-storage bucket name. Required when <see cref="Provider"/> is S3.
+    /// Имя бакета объектного хранилища. Обязательно, если <see cref="Provider"/> равен S3.
     /// </summary>
     public string? BucketName { get; set; }
 }

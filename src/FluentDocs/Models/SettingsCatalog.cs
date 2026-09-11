@@ -1,125 +1,125 @@
 namespace FluentDocs;
 
 /// <summary>
-/// Canonical snapshot of documented application settings.
+/// Канонический снимок задокументированных настроек приложения.
 /// </summary>
 public sealed class SettingsCatalog
 {
     /// <summary>
-    /// Snapshot schema version.
+    /// Версия схемы снимка.
     /// </summary>
     public string Version { get; set; } = "1";
 
     /// <summary>
-    /// Documented settings types, sorted by full name.
+    /// Типы настроек, отсортированные по полному имени.
     /// </summary>
     public List<SettingsTypeDocument> Types { get; set; } = [];
 
     /// <summary>
-    /// Non-fatal issues encountered while analyzing validators.
+    /// Нефатальные проблемы, возникшие при разборе валидаторов.
     /// </summary>
     public List<string> Warnings { get; set; } = [];
 }
 
 /// <summary>
-/// Documentation for one settings type.
+/// Описание одного типа настроек.
 /// </summary>
 public sealed class SettingsTypeDocument
 {
     /// <summary>
-    /// Assembly-qualified-style full name without assembly, e.g. <c>DemoApp.Options.MailOptions</c>.
+    /// Полное имя типа без сборки, например <c>DemoApp.Options.MailOptions</c>.
     /// </summary>
     public string FullName { get; set; } = string.Empty;
 
     /// <summary>
-    /// Short type name.
+    /// Короткое имя типа.
     /// </summary>
     public string Name { get; set; } = string.Empty;
 
     /// <summary>
-    /// Configuration section path from <c>[SettingsDocs]</c>.
+    /// Путь секции конфигурации из <c>[SettingsDocs]</c>.
     /// </summary>
     public string? ConfigurationPath { get; set; }
 
     /// <summary>
-    /// XML <c>summary</c> for the type.
+    /// XML <c>summary</c> типа.
     /// </summary>
     public string? Summary { get; set; }
 
     /// <summary>
-    /// XML <c>remarks</c> for the type.
+    /// XML <c>remarks</c> типа.
     /// </summary>
     public string? Remarks { get; set; }
 
     /// <summary>
-    /// Properties including nested dotted paths.
+    /// Свойства, включая вложенные dotted-пути.
     /// </summary>
     public List<SettingsPropertyDocument> Properties { get; set; } = [];
 }
 
 /// <summary>
-/// Documentation for one settings property.
+/// Описание одного свойства настроек.
 /// </summary>
 public sealed class SettingsPropertyDocument
 {
     /// <summary>
-    /// Dotted path from the settings root, using <c>[]</c> for collection elements.
+    /// Dotted-путь от корня настроек; для элементов коллекции используется <c>[]</c>.
     /// </summary>
     public string Path { get; set; } = string.Empty;
 
     /// <summary>
-    /// Display CLR type name.
+    /// Отображаемое имя CLR-типа.
     /// </summary>
     public string ClrType { get; set; } = string.Empty;
 
     /// <summary>
-    /// Formatted default value, if it could be read from a parameterless constructor.
+    /// Отформатированное значение по умолчанию, если его удалось прочитать через конструктор без параметров.
     /// </summary>
     public string? DefaultValue { get; set; }
 
     /// <summary>
-    /// XML <c>summary</c> for the property.
+    /// XML <c>summary</c> свойства.
     /// </summary>
     public string? Summary { get; set; }
 
     /// <summary>
-    /// XML <c>remarks</c> for the property.
+    /// XML <c>remarks</c> свойства.
     /// </summary>
     public string? Remarks { get; set; }
 
     /// <summary>
-    /// Validation rules from FluentValidation, sorted by identifier.
+    /// Правила FluentValidation, отсортированные по идентификатору.
     /// </summary>
     public List<SettingsRuleDocument> Rules { get; set; } = [];
 }
 
 /// <summary>
-/// One normalized FluentValidation constraint.
+/// Одно нормализованное ограничение FluentValidation.
 /// </summary>
 public sealed class SettingsRuleDocument
 {
     /// <summary>
-    /// Stable identifier used for changelog comparison, e.g. <c>MaximumLength:50</c>.
+    /// Стабильный идентификатор для сравнения в журнале изменений, например <c>MaximumLength:50</c>.
     /// </summary>
     public string Id { get; set; } = string.Empty;
 
     /// <summary>
-    /// Human-readable constraint description.
+    /// Человекочитаемое описание ограничения.
     /// </summary>
     public string Description { get; set; } = string.Empty;
 
     /// <summary>
-    /// Custom <c>WithMessage</c> template when it differs from the FluentValidation default.
+    /// Шаблон <c>WithMessage</c>, если он отличается от стандартного сообщения FluentValidation.
     /// </summary>
     public string? Message { get; set; }
 
     /// <summary>
-    /// Rule set name when the rule is not in the default set.
+    /// Имя набора правил, если правило не входит в набор по умолчанию.
     /// </summary>
     public string? RuleSet { get; set; }
 
     /// <summary>
-    /// True when the rule or component has a <c>When</c>/<c>Unless</c> condition.
+    /// Признак условия <c>When</c>/<c>Unless</c> у правила или компонента.
     /// </summary>
     public bool HasCondition { get; set; }
 }

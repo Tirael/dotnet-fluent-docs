@@ -4,7 +4,7 @@ using FluentValidation;
 namespace DemoApp.Validation;
 
 /// <summary>
-/// FluentValidation rules for <see cref="MailOptions"/>.
+/// Правила FluentValidation для <see cref="MailOptions"/>.
 /// </summary>
 public sealed class MailOptionsValidator : AbstractValidator<MailOptions>
 {
@@ -13,7 +13,7 @@ public sealed class MailOptionsValidator : AbstractValidator<MailOptions>
         RuleFor(x => x.Host)
             .NotEmpty()
             .MaximumLength(255)
-            .WithMessage("SMTP host is required and must be at most 255 characters.");
+            .WithMessage("SMTP-хост обязателен и не длиннее 255 символов.");
 
         RuleFor(x => x.Port)
             .InclusiveBetween(1, 65_535);
@@ -21,13 +21,13 @@ public sealed class MailOptionsValidator : AbstractValidator<MailOptions>
         RuleFor(x => x.From)
             .NotEmpty()
             .EmailAddress()
-            .WithMessage("From must be a valid email address.");
+            .WithMessage("From должен быть корректным адресом электронной почты.");
 
         When(x => x.EnableTls, () =>
         {
             RuleFor(x => x.Port)
                 .GreaterThanOrEqualTo(465)
-                .WithMessage("TLS mail typically uses port 465 or 587.");
+                .WithMessage("Для TLS обычно используют порт 465 или 587.");
         });
 
         RuleFor(x => x.TimeoutSeconds)
@@ -49,7 +49,7 @@ public sealed class MailOptionsValidator : AbstractValidator<MailOptions>
 }
 
 /// <summary>
-/// FluentValidation rules for <see cref="RetryOptions"/>.
+/// Правила FluentValidation для <see cref="RetryOptions"/>.
 /// </summary>
 public sealed class RetryOptionsValidator : AbstractValidator<RetryOptions>
 {
@@ -65,7 +65,7 @@ public sealed class RetryOptionsValidator : AbstractValidator<RetryOptions>
 }
 
 /// <summary>
-/// FluentValidation rules for <see cref="RecipientOptions"/>.
+/// Правила FluentValidation для <see cref="RecipientOptions"/>.
 /// </summary>
 public sealed class RecipientOptionsValidator : AbstractValidator<RecipientOptions>
 {
@@ -82,7 +82,7 @@ public sealed class RecipientOptionsValidator : AbstractValidator<RecipientOptio
 }
 
 /// <summary>
-/// FluentValidation rules for <see cref="StorageOptions"/>.
+/// Правила FluentValidation для <see cref="StorageOptions"/>.
 /// </summary>
 public sealed class StorageOptionsValidator : AbstractValidator<StorageOptions>
 {
@@ -91,12 +91,12 @@ public sealed class StorageOptionsValidator : AbstractValidator<StorageOptions>
         RuleFor(x => x.Provider)
             .NotEmpty()
             .Must(provider => provider is "Local" or "S3")
-            .WithMessage("Provider must be Local or S3.");
+            .WithMessage("Provider должен быть Local или S3.");
 
         RuleFor(x => x.RootPath)
             .NotEmpty()
             .Must(path => path.StartsWith('/'))
-            .WithMessage("RootPath must be an absolute Unix path.");
+            .WithMessage("RootPath должен быть абсолютным Unix-путём.");
 
         RuleFor(x => x.MaxFileSizeBytes)
             .InclusiveBetween(1, 100 * 1024 * 1024);
@@ -106,7 +106,7 @@ public sealed class StorageOptionsValidator : AbstractValidator<StorageOptions>
             RuleFor(x => x.BucketName)
                 .NotEmpty()
                 .Matches("^[a-z0-9.-]{3,63}$")
-                .WithMessage("BucketName must be a valid S3 bucket name.");
+                .WithMessage("BucketName должен быть корректным именем бакета S3.");
         });
     }
 }

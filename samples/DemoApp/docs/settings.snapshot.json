@@ -5,30 +5,30 @@
       "fullName": "DemoApp.Options.MailOptions",
       "name": "MailOptions",
       "configurationPath": "Mail",
-      "summary": "SMTP mail delivery settings.",
-      "remarks": "Bound to the Mail configuration section.",
+      "summary": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 SMTP-\u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438 \u043F\u043E\u0447\u0442\u044B.",
+      "remarks": "\u041F\u0440\u0438\u0432\u044F\u0437\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u043A \u0441\u0435\u043A\u0446\u0438\u0438 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 Mail.",
       "properties": [
         {
           "path": "AllowedSenderPatterns",
           "clrType": "List\u003Cstring\u003E",
           "defaultValue": "[]",
-          "summary": "Regular expressions that outgoing sender addresses must match.",
+          "summary": "\u0420\u0435\u0433\u0443\u043B\u044F\u0440\u043D\u044B\u0435 \u0432\u044B\u0440\u0430\u0436\u0435\u043D\u0438\u044F, \u043A\u043E\u0442\u043E\u0440\u044B\u043C \u0434\u043E\u043B\u0436\u043D\u044B \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0430\u0434\u0440\u0435\u0441\u0430 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u0435\u043B\u044F.",
           "rules": []
         },
         {
           "path": "AllowedSenderPatterns[]",
           "clrType": "string[]",
           "defaultValue": "[]",
-          "summary": "Regular expressions that outgoing sender addresses must match.",
+          "summary": "\u0420\u0435\u0433\u0443\u043B\u044F\u0440\u043D\u044B\u0435 \u0432\u044B\u0440\u0430\u0436\u0435\u043D\u0438\u044F, \u043A\u043E\u0442\u043E\u0440\u044B\u043C \u0434\u043E\u043B\u0436\u043D\u044B \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0430\u0434\u0440\u0435\u0441\u0430 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u0435\u043B\u044F.",
           "rules": [
             {
               "id": "Matches:^.*$",
-              "description": "Must match pattern \u0060^.*$\u0060.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0448\u0430\u0431\u043B\u043E\u043D\u0443 \u0060^.*$\u0060.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "Must not be empty.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
               "hasCondition": false
             }
           ]
@@ -37,24 +37,24 @@
           "path": "EnableTls",
           "clrType": "bool",
           "defaultValue": "true",
-          "summary": "When true, the client starts a TLS session after connect.",
+          "summary": "\u0415\u0441\u043B\u0438 true, \u043F\u043E\u0441\u043B\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A\u043B\u0438\u0435\u043D\u0442 \u043F\u043E\u0434\u043D\u0438\u043C\u0430\u0435\u0442 TLS.",
           "rules": []
         },
         {
           "path": "From",
           "clrType": "string",
           "defaultValue": "\u0022noreply@localhost\u0022",
-          "summary": "Envelope sender address used for outgoing mail.",
+          "summary": "\u0410\u0434\u0440\u0435\u0441 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u0435\u043B\u044F \u0438\u0441\u0445\u043E\u0434\u044F\u0449\u0435\u0439 \u043F\u043E\u0447\u0442\u044B.",
           "rules": [
             {
               "id": "EmailAddress",
-              "description": "Must be a valid email address.",
-              "message": "From must be a valid email address.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0430\u0434\u0440\u0435\u0441\u043E\u043C \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B.",
+              "message": "From \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0430\u0434\u0440\u0435\u0441\u043E\u043C \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "Must not be empty.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
               "hasCondition": false
             }
           ]
@@ -63,17 +63,17 @@
           "path": "Host",
           "clrType": "string",
           "defaultValue": "\u0022localhost\u0022",
-          "summary": "SMTP host name or address.",
+          "summary": "\u0418\u043C\u044F \u0438\u043B\u0438 \u0430\u0434\u0440\u0435\u0441 SMTP-\u0445\u043E\u0441\u0442\u0430.",
           "rules": [
             {
               "id": "MaximumLength:255",
-              "description": "Maximum length is 255.",
-              "message": "SMTP host is required and must be at most 255 characters.",
+              "description": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u0430\u044F \u0434\u043B\u0438\u043D\u0430: 255.",
+              "message": "SMTP-\u0445\u043E\u0441\u0442 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u0435\u043D \u0438 \u043D\u0435 \u0434\u043B\u0438\u043D\u043D\u0435\u0435 255 \u0441\u0438\u043C\u0432\u043E\u043B\u043E\u0432.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "Must not be empty.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
               "hasCondition": false
             }
           ]
@@ -82,17 +82,17 @@
           "path": "Port",
           "clrType": "int",
           "defaultValue": "25",
-          "summary": "SMTP TCP port.",
+          "summary": "TCP-\u043F\u043E\u0440\u0442 SMTP.",
           "rules": [
             {
               "id": "GreaterThanOrEqual:465",
-              "description": "Must be greater than or equal to 465.",
-              "message": "TLS mail typically uses port 465 or 587.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043D\u0435 \u043C\u0435\u043D\u044C\u0448\u0435 465.",
+              "message": "\u0414\u043B\u044F TLS \u043E\u0431\u044B\u0447\u043D\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442 \u043F\u043E\u0440\u0442 465 \u0438\u043B\u0438 587.",
               "hasCondition": true
             },
             {
               "id": "InclusiveBetween:1-65535",
-              "description": "Must be between 1 and 65535 (inclusive).",
+              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 65535 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
               "hasCondition": false
             }
           ]
@@ -101,11 +101,11 @@
           "path": "Recipients",
           "clrType": "List\u003CRecipientOptions\u003E",
           "defaultValue": "[]",
-          "summary": "Recipients that always receive a copy of system notifications.",
+          "summary": "\u041F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u0438, \u043A\u043E\u0442\u043E\u0440\u044B\u0435 \u0432\u0441\u0435\u0433\u0434\u0430 \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442 \u043A\u043E\u043F\u0438\u044E \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439.",
           "rules": [
             {
               "id": "NotNull",
-              "description": "Must not be null.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C null.",
               "hasCondition": false
             }
           ]
@@ -114,22 +114,22 @@
           "path": "Recipients[]",
           "clrType": "RecipientOptions[]",
           "defaultValue": "[]",
-          "summary": "Recipients that always receive a copy of system notifications.",
+          "summary": "\u041F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u0438, \u043A\u043E\u0442\u043E\u0440\u044B\u0435 \u0432\u0441\u0435\u0433\u0434\u0430 \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442 \u043A\u043E\u043F\u0438\u044E \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439.",
           "rules": []
         },
         {
           "path": "Recipients[].Email",
           "clrType": "string",
-          "summary": "Recipient email address.",
+          "summary": "\u0410\u0434\u0440\u0435\u0441 \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B \u043F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u044F.",
           "rules": [
             {
               "id": "EmailAddress",
-              "description": "Must be a valid email address.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0430\u0434\u0440\u0435\u0441\u043E\u043C \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "Must not be empty.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
               "hasCondition": false
             }
           ]
@@ -137,11 +137,11 @@
         {
           "path": "Recipients[].Name",
           "clrType": "string",
-          "summary": "Optional display name.",
+          "summary": "\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0435 \u043E\u0442\u043E\u0431\u0440\u0430\u0436\u0430\u0435\u043C\u043E\u0435 \u0438\u043C\u044F.",
           "rules": [
             {
               "id": "MaximumLength:100",
-              "description": "Maximum length is 100.",
+              "description": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u0430\u044F \u0434\u043B\u0438\u043D\u0430: 100.",
               "hasCondition": true
             }
           ]
@@ -149,23 +149,23 @@
         {
           "path": "Retry",
           "clrType": "RetryOptions",
-          "summary": "Retry policy applied after a failed send.",
+          "summary": "\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u043F\u043E\u0432\u0442\u043E\u0440\u043E\u0432 \u043F\u043E\u0441\u043B\u0435 \u043D\u0435\u0443\u0434\u0430\u0447\u043D\u043E\u0439 \u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438.",
           "rules": []
         },
         {
           "path": "Retry.DelayMilliseconds",
           "clrType": "int",
           "defaultValue": "200",
-          "summary": "Delay between attempts in milliseconds.",
+          "summary": "\u041F\u0430\u0443\u0437\u0430 \u043C\u0435\u0436\u0434\u0443 \u043F\u043E\u043F\u044B\u0442\u043A\u0430\u043C\u0438 \u0432 \u043C\u0438\u043B\u043B\u0438\u0441\u0435\u043A\u0443\u043D\u0434\u0430\u0445.",
           "rules": [
             {
               "id": "GreaterThan:0",
-              "description": "Must be greater than 0.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u0431\u043E\u043B\u044C\u0448\u0435 0.",
               "hasCondition": false
             },
             {
               "id": "LessThanOrEqual:60000",
-              "description": "Must be less than or equal to 60000.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043D\u0435 \u0431\u043E\u043B\u044C\u0448\u0435 60000.",
               "hasCondition": false
             }
           ]
@@ -174,11 +174,11 @@
           "path": "Retry.MaxAttempts",
           "clrType": "int",
           "defaultValue": "3",
-          "summary": "Maximum number of send attempts, including the first try.",
+          "summary": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u043E\u0435 \u0447\u0438\u0441\u043B\u043E \u043F\u043E\u043F\u044B\u0442\u043E\u043A \u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438, \u0432\u043A\u043B\u044E\u0447\u0430\u044F \u043F\u0435\u0440\u0432\u0443\u044E.",
           "rules": [
             {
               "id": "InclusiveBetween:1-10",
-              "description": "Must be between 1 and 10 (inclusive).",
+              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 10 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
               "hasCondition": false
             }
           ]
@@ -187,11 +187,11 @@
           "path": "TimeoutSeconds",
           "clrType": "int",
           "defaultValue": "30",
-          "summary": "Send timeout in seconds.",
+          "summary": "\u0422\u0430\u0439\u043C\u0430\u0443\u0442 \u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438 \u0432 \u0441\u0435\u043A\u0443\u043D\u0434\u0430\u0445.",
           "rules": [
             {
               "id": "InclusiveBetween:1-300",
-              "description": "Must be between 1 and 300 (inclusive).",
+              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 300 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
               "hasCondition": false
             }
           ]
@@ -202,23 +202,23 @@
       "fullName": "DemoApp.Options.StorageOptions",
       "name": "StorageOptions",
       "configurationPath": "Storage",
-      "summary": "File storage settings for demo artifacts.",
+      "summary": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0444\u0430\u0439\u043B\u043E\u0432\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430 \u0434\u0435\u043C\u043E-\u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442\u043E\u0432.",
       "properties": [
         {
           "path": "BucketName",
           "clrType": "string",
           "defaultValue": "null",
-          "summary": "Object-storage bucket name. Required when Provider is S3.",
+          "summary": "\u0418\u043C\u044F \u0431\u0430\u043A\u0435\u0442\u0430 \u043E\u0431\u044A\u0435\u043A\u0442\u043D\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430. \u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E, \u0435\u0441\u043B\u0438 Provider \u0440\u0430\u0432\u0435\u043D S3.",
           "rules": [
             {
               "id": "Matches:^[a-z0-9.-]{3,63}$",
-              "description": "Must match pattern \u0060^[a-z0-9.-]{3,63}$\u0060.",
-              "message": "BucketName must be a valid S3 bucket name.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0448\u0430\u0431\u043B\u043E\u043D\u0443 \u0060^[a-z0-9.-]{3,63}$\u0060.",
+              "message": "BucketName \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0438\u043C\u0435\u043D\u0435\u043C \u0431\u0430\u043A\u0435\u0442\u0430 S3.",
               "hasCondition": true
             },
             {
               "id": "NotEmpty",
-              "description": "Must not be empty.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
               "hasCondition": true
             }
           ]
@@ -227,11 +227,11 @@
           "path": "MaxFileSizeBytes",
           "clrType": "long",
           "defaultValue": "1048576",
-          "summary": "Maximum uploaded file size in bytes.",
+          "summary": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0440\u0430\u0437\u043C\u0435\u0440 \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u043C\u043E\u0433\u043E \u0444\u0430\u0439\u043B\u0430 \u0432 \u0431\u0430\u0439\u0442\u0430\u0445.",
           "rules": [
             {
               "id": "InclusiveBetween:1-104857600",
-              "description": "Must be between 1 and 104857600 (inclusive).",
+              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 104857600 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
               "hasCondition": false
             }
           ]
@@ -240,17 +240,17 @@
           "path": "Provider",
           "clrType": "string",
           "defaultValue": "\u0022Local\u0022",
-          "summary": "Storage backend identifier. Supported values: Local, S3.",
+          "summary": "\u0418\u0434\u0435\u043D\u0442\u0438\u0444\u0438\u043A\u0430\u0442\u043E\u0440 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430. \u0414\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u044B\u0435 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F: Local, S3.",
           "rules": [
             {
               "id": "Must",
-              "description": "Must satisfy a custom predicate.",
-              "message": "Provider must be Local or S3.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0443\u0434\u043E\u0432\u043B\u0435\u0442\u0432\u043E\u0440\u044F\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u043C\u0443 \u0443\u0441\u043B\u043E\u0432\u0438\u044E.",
+              "message": "Provider \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C Local \u0438\u043B\u0438 S3.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "Must not be empty.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
               "hasCondition": false
             }
           ]
@@ -259,17 +259,17 @@
           "path": "RootPath",
           "clrType": "string",
           "defaultValue": "\u0022/var/demo/data\u0022",
-          "summary": "Absolute directory used when Provider is Local.",
+          "summary": "\u0410\u0431\u0441\u043E\u043B\u044E\u0442\u043D\u044B\u0439 \u043A\u0430\u0442\u0430\u043B\u043E\u0433, \u0435\u0441\u043B\u0438 Provider \u0440\u0430\u0432\u0435\u043D Local.",
           "rules": [
             {
               "id": "Must",
-              "description": "Must satisfy a custom predicate.",
-              "message": "RootPath must be an absolute Unix path.",
+              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0443\u0434\u043E\u0432\u043B\u0435\u0442\u0432\u043E\u0440\u044F\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u043C\u0443 \u0443\u0441\u043B\u043E\u0432\u0438\u044E.",
+              "message": "RootPath \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0430\u0431\u0441\u043E\u043B\u044E\u0442\u043D\u044B\u043C Unix-\u043F\u0443\u0442\u0451\u043C.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "Must not be empty.",
+              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
               "hasCondition": false
             }
           ]

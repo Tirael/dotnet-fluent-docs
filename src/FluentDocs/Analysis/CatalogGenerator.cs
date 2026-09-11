@@ -4,7 +4,7 @@ using System.Reflection;
 namespace FluentDocs.Analysis;
 
 /// <summary>
-/// Builds a <see cref="SettingsCatalog"/> from a compiled assembly and optional XML documentation file.
+/// Строит <see cref="SettingsCatalog"/> по собранной сборке и необязательному XML-файлу документации.
 /// </summary>
 public static class CatalogGenerator
 {
@@ -12,20 +12,20 @@ public static class CatalogGenerator
     private const string ValidatorInterfaceName = "IValidator`1";
 
     /// <summary>
-    /// Analyzes validators already loaded in the current load context.
+    /// Анализирует валидаторы, уже загруженные в текущий контекст.
     /// </summary>
     public static SettingsCatalog Generate(Assembly assembly, string? xmlDocumentationPath = null)
         => GenerateCore(assembly, xmlDocumentationPath);
 
     /// <summary>
-    /// Loads <paramref name="assemblyPath"/> in an isolated context and analyzes its validators.
+    /// Загружает <paramref name="assemblyPath"/> в изолированный контекст и анализирует валидаторы.
     /// </summary>
     public static SettingsCatalog GenerateFromPath(string assemblyPath, string? xmlDocumentationPath = null)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(assemblyPath);
         var fullPath = Path.GetFullPath(assemblyPath);
         if (!File.Exists(fullPath))
-            throw new FileNotFoundException($"Assembly '{fullPath}' was not found.", fullPath);
+            throw new FileNotFoundException($"Сборка '{fullPath}' не найдена.", fullPath);
 
         var context = new PluginLoadContext(fullPath);
         try
@@ -79,7 +79,7 @@ public static class CatalogGenerator
             }
             catch (Exception ex)
             {
-                warnings.Add($"Could not instantiate validator '{type.FullName}' (parameterless constructor required in v1): {ex.GetBaseException().Message}");
+                warnings.Add($"Не удалось создать экземпляр валидатора '{type.FullName}' (в v1 нужен конструктор без параметров): {ex.GetBaseException().Message}");
             }
 
             discovered.Add((type, modelType, instance));
@@ -168,7 +168,7 @@ public static class CatalogGenerator
         }
         else
         {
-            warnings.Add($"Settings type '{modelType.FullName}' has validator '{validatorType.FullName}' that could not be instantiated.");
+            warnings.Add($"Для типа настроек '{modelType.FullName}' не удалось создать валидатор '{validatorType.FullName}'.");
         }
 
         document.Properties = document.Properties
@@ -222,7 +222,7 @@ public static class CatalogGenerator
         }
         catch (Exception ex)
         {
-            warnings.Add($"CreateDescriptor failed for '{validatorType.FullName}': {ex.GetBaseException().Message}");
+            warnings.Add($"CreateDescriptor завершился с ошибкой для '{validatorType.FullName}': {ex.GetBaseException().Message}");
             return;
         }
 
@@ -335,7 +335,7 @@ public static class CatalogGenerator
         }
         catch (Exception ex)
         {
-            warnings.Add($"Could not instantiate child validator '{validatorType.FullName}': {ex.GetBaseException().Message}");
+            warnings.Add($"Не удалось создать вложенный валидатор '{validatorType.FullName}': {ex.GetBaseException().Message}");
             return null;
         }
     }

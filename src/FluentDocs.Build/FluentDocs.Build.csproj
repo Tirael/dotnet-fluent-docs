@@ -4,7 +4,7 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <DevelopmentDependency>true</DevelopmentDependency>
     <PackageId>FluentDocs.Build</PackageId>
-    <Description>MSBuild integration that runs FluentDocs after compiling an application.</Description>
+    <Description>Интеграция MSBuild: запускает FluentDocs после компиляции приложения.</Description>
     <IsPackable>true</IsPackable>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

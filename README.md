@@ -2,7 +2,7 @@
 
 Библиотека для .NET 10, которая **при сборке** приложения читает XML-комментарии классов настроек и правила [FluentValidation](https://docs.fluentvalidation.net/), затем пишет:
 
-- `docs/settings.md` — каталог настроек и changelog относительно предыдущего снимка
+- `docs/settings.md` — каталог настроек и журнал изменений на русском языке относительно предыдущего снимка
 - `docs/settings.snapshot.json` — канонический JSON-снимок для следующего сравнения
 
 Демонстрационное приложение: [`samples/DemoApp`](samples/DemoApp).
@@ -59,15 +59,15 @@ dotnet exec src/FluentDocs.Tool/bin/Debug/net10.0/FluentDocs.Tool.dll \
 - Свойства, XML `<summary>` / `<remarks>`, значения по умолчанию (parameterless constructor).
 - Правила FluentValidation с нормализованным id (`NotEmpty`, `MaximumLength:50`, `InclusiveBetween:1-3600`, `Matches:^...$`, `Must`, …).
 - Вложенность: `SetValidator`, `RuleForEach` / `ChildRules` → dotted path (`Retry.MaxAttempts`, `Recipients[].Email`).
-- Условные правила (`When` / `Unless`) помечаются как conditional.
+- Условные правила (`When` / `Unless`) помечаются как условные.
 
-Changelog сравнивает **идентификаторы правил**, а не сырой текст: изменение `MaximumLength:50` → `MaximumLength:255` видно как remove + add. Неизменившийся `NotEmpty` в changelog не попадает.
+Журнал изменений сравнивает **идентификаторы правил**, а не сырой текст: изменение `MaximumLength:50` → `MaximumLength:255` видно как удаление + добавление. Неизменившийся `NotEmpty` в журнал не попадает.
 
 ## Ограничения v1
 
-- Валидатор должен иметь **public parameterless constructor**. Валидаторы с DI пока пропускаются (warning в markdown).
+- Валидатор должен иметь **public parameterless constructor**. Валидаторы с DI пока пропускаются (предупреждение в markdown).
 - Исходники **не** разбираются Roslyn’ом: анализ идёт по уже собранной сборке и `IValidator.CreateDescriptor()`.
-- Кастомный `Must` документируется как custom predicate; осмысленный текст берётся из `WithMessage`.
+- Кастомный `Must` документируется как пользовательское условие; осмысленный текст берётся из `WithMessage`.
 - Условие `When`/`Unless` фиксируется как флаг, без сериализации лямбды.
 
 ## Сборка и тесты

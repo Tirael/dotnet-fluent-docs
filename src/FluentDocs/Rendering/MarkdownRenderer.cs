@@ -3,33 +3,33 @@ using System.Text;
 namespace FluentDocs.Rendering;
 
 /// <summary>
-/// Renders a settings catalog and optional changelog to Markdown.
+/// Формирует Markdown-каталог настроек и журнал изменений.
 /// </summary>
 public static class MarkdownRenderer
 {
     /// <summary>
-    /// Renders Markdown documentation.
+    /// Собирает итоговый Markdown-файл.
     /// </summary>
-    /// <param name="catalog">Current catalog.</param>
-    /// <param name="diff">Diff against the previous snapshot. Ignored when <paramref name="isInitial"/> is true.</param>
-    /// <param name="isInitial">True when no previous snapshot existed.</param>
+    /// <param name="catalog">Текущий каталог настроек.</param>
+    /// <param name="diff">Отличия от предыдущего снимка. Игнорируется, если <paramref name="isInitial"/> равен <c>true</c>.</param>
+    /// <param name="isInitial"><c>true</c>, если предыдущего снимка ещё не было.</param>
     public static string Render(SettingsCatalog catalog, CatalogDiff? diff, bool isInitial = false)
     {
         ArgumentNullException.ThrowIfNull(catalog);
         var builder = new StringBuilder();
-        builder.AppendLine("# Application settings");
+        builder.AppendLine("# Настройки приложения");
         builder.AppendLine();
-        builder.AppendLine("Generated from FluentValidation validators and XML documentation comments.");
+        builder.AppendLine("Сформировано по валидаторам FluentValidation и XML-комментариям к классам настроек.");
         builder.AppendLine();
-        builder.AppendLine("## Changelog");
+        builder.AppendLine("## Журнал изменений");
         builder.AppendLine();
         AppendChangelog(builder, diff, isInitial);
-        builder.AppendLine("## Catalog");
+        builder.AppendLine("## Каталог");
         builder.AppendLine();
 
         if (catalog.Types.Count == 0)
         {
-            builder.AppendLine("No settings types were discovered.");
+            builder.AppendLine("Типы настроек не найдены.");
             builder.AppendLine();
         }
         else
@@ -40,7 +40,7 @@ public static class MarkdownRenderer
 
         if (catalog.Warnings.Count > 0)
         {
-            builder.AppendLine("## Warnings");
+            builder.AppendLine("## Предупреждения");
             builder.AppendLine();
             foreach (var warning in catalog.Warnings)
                 builder.AppendLine($"- {warning}");
@@ -54,21 +54,21 @@ public static class MarkdownRenderer
     {
         if (isInitial || diff is null)
         {
-            builder.AppendLine("Initial catalog generated.");
+            builder.AppendLine("Каталог сформирован впервые.");
             builder.AppendLine();
             return;
         }
 
         if (!diff.HasChanges)
         {
-            builder.AppendLine("No settings changes since the previous snapshot.");
+            builder.AppendLine("Изменений настроек относительно предыдущего снимка нет.");
             builder.AppendLine();
             return;
         }
 
         if (diff.AddedTypes.Count > 0)
         {
-            builder.AppendLine("### Added settings types");
+            builder.AppendLine("### Добавленные типы настроек");
             builder.AppendLine();
             foreach (var type in diff.AddedTypes)
                 builder.AppendLine($"- `{type.Name}` (`{FormatPath(type)}`)");
@@ -77,7 +77,7 @@ public static class MarkdownRenderer
 
         if (diff.RemovedTypes.Count > 0)
         {
-            builder.AppendLine("### Removed settings types");
+            builder.AppendLine("### Удалённые типы настроек");
             builder.AppendLine();
             foreach (var type in diff.RemovedTypes)
                 builder.AppendLine($"- `{type.Name}` (`{FormatPath(type)}`)");
@@ -89,28 +89,28 @@ public static class MarkdownRenderer
             builder.AppendLine($"### `{type.FullName}`");
             builder.AppendLine();
             if (type.ConfigurationPathChange is not null)
-                builder.AppendLine($"- **Configuration path:** {type.ConfigurationPathChange}");
+                builder.AppendLine($"- **Путь конфигурации:** {type.ConfigurationPathChange}");
             if (type.SummaryChange is not null)
-                builder.AppendLine($"- **Summary:** {type.SummaryChange}");
+                builder.AppendLine($"- **Описание:** {type.SummaryChange}");
             foreach (var property in type.AddedProperties)
-                builder.AppendLine($"- **Added property** `{property.Path}` ({property.ClrType})");
+                builder.AppendLine($"- **Добавлено свойство** `{property.Path}` ({property.ClrType})");
             foreach (var property in type.RemovedProperties)
-                builder.AppendLine($"- **Removed property** `{property.Path}`");
+                builder.AppendLine($"- **Удалено свойство** `{property.Path}`");
             foreach (var property in type.ChangedProperties)
             {
-                builder.AppendLine($"- **Changed property** `{property.Path}`");
+                builder.AppendLine($"- **Изменено свойство** `{property.Path}`");
                 if (property.TypeChange is not null)
-                    builder.AppendLine($"  - Type: {property.TypeChange}");
+                    builder.AppendLine($"  - Тип: {property.TypeChange}");
                 if (property.DefaultChange is not null)
-                    builder.AppendLine($"  - Default: {property.DefaultChange}");
+                    builder.AppendLine($"  - Значение по умолчанию: {property.DefaultChange}");
                 if (property.SummaryChange is not null)
-                    builder.AppendLine($"  - Summary: {property.SummaryChange}");
+                    builder.AppendLine($"  - Описание: {property.SummaryChange}");
                 foreach (var rule in property.AddedRules)
-                    builder.AppendLine($"  - Added constraint `{rule.Id}`: {rule.Description}");
+                    builder.AppendLine($"  - Добавлено ограничение `{rule.Id}`: {rule.Description}");
                 foreach (var rule in property.RemovedRules)
-                    builder.AppendLine($"  - Removed constraint `{rule.Id}`: {rule.Description}");
+                    builder.AppendLine($"  - Удалено ограничение `{rule.Id}`: {rule.Description}");
                 foreach (var rule in property.ChangedRules)
-                    builder.AppendLine($"  - Changed constraint `{rule.Id}`: {rule.Previous.Description} → {rule.Current.Description}");
+                    builder.AppendLine($"  - Изменено ограничение `{rule.Id}`: {rule.Previous.Description} → {rule.Current.Description}");
             }
 
             builder.AppendLine();
@@ -136,12 +136,12 @@ public static class MarkdownRenderer
             builder.AppendLine();
         }
 
-        builder.AppendLine($"**Type:** `{type.FullName}`");
+        builder.AppendLine($"**Тип:** `{type.FullName}`");
         builder.AppendLine();
 
         if (type.Properties.Count == 0)
         {
-            builder.AppendLine("_No properties discovered._");
+            builder.AppendLine("_Свойства не найдены._");
             builder.AppendLine();
             return;
         }
@@ -166,25 +166,25 @@ public static class MarkdownRenderer
             builder.AppendLine();
         }
 
-        builder.AppendLine($"- **Type:** `{property.ClrType}`");
+        builder.AppendLine($"- **Тип:** `{property.ClrType}`");
         if (property.DefaultValue is not null)
-            builder.AppendLine($"- **Default:** `{property.DefaultValue}`");
+            builder.AppendLine($"- **По умолчанию:** `{property.DefaultValue}`");
 
         if (property.Rules.Count > 0)
         {
-            builder.AppendLine("- **Constraints:**");
+            builder.AppendLine("- **Ограничения:**");
             foreach (var rule in property.Rules)
             {
-                var condition = rule.HasCondition ? " _(conditional)_" : "";
-                var ruleSet = rule.RuleSet is null ? "" : $" `[ruleset: {rule.RuleSet}]`";
+                var condition = rule.HasCondition ? " _(условно)_" : "";
+                var ruleSet = rule.RuleSet is null ? "" : $" `[набор правил: {rule.RuleSet}]`";
                 builder.AppendLine($"  - {rule.Description}{condition}{ruleSet} (`{rule.Id}`)");
                 if (!string.IsNullOrWhiteSpace(rule.Message))
-                    builder.AppendLine($"    - Message: {rule.Message}");
+                    builder.AppendLine($"    - Сообщение: {rule.Message}");
             }
         }
         else
         {
-            builder.AppendLine("- **Constraints:** none discovered");
+            builder.AppendLine("- **Ограничения:** не обнаружены");
         }
 
         builder.AppendLine();
