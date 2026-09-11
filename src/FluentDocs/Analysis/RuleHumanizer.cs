@@ -1,200 +1,104 @@
-using System.Globalization;
-using System.Reflection;
 using System.Text;
 
 namespace FluentDocs.Analysis;
 
+/// <summary>
+/// Превращает вызов FluentValidation в стабильный идентификатор и русское описание.
+/// </summary>
 internal static class RuleHumanizer
 {
-    public static SettingsRuleDocument? Humanize(object propertyValidator, object component, bool ruleHasCondition, string? ruleSet)
+    public static SettingsRuleDocument? Humanize(
+        string methodName,
+        IReadOnlyList<string> arguments,
+        string? message,
+        bool hasCondition,
+        string? ruleSet)
     {
-        var typeName = ReflectionHelpers.GetNonGenericName(propertyValidator.GetType());
-        if (typeName is "ChildValidatorAdaptor" or "NoopPropertyValidator" or "PolymorphicValidator")
+        if (IsIgnored(methodName))
             return null;
 
-        var name = ReflectionHelpers.GetPropertyValue<string>(propertyValidator, "Name") ?? typeName;
-        var (id, description) = Describe(propertyValidator, typeName, name);
-        var message = GetCustomMessage(propertyValidator, component);
-        var hasCondition = ruleHasCondition
-                           || ReflectionHelpers.GetPropertyValue<bool>(component, "HasCondition")
-                           || ReflectionHelpers.GetPropertyValue<bool>(component, "HasAsyncCondition");
-
+        var (id, description) = Describe(methodName, arguments);
         var normalizedRuleSet = string.IsNullOrWhiteSpace(ruleSet) || ruleSet == "default" ? null : ruleSet;
 
         return new SettingsRuleDocument
         {
             Id = id,
             Description = description,
-            Message = message,
+            Message = string.IsNullOrWhiteSpace(message) ? null : message,
             RuleSet = normalizedRuleSet,
             HasCondition = hasCondition
         };
     }
 
-    private static (string Id, string Description) Describe(object validator, string typeName, string name)
+    public static bool IsIgnored(string methodName)
+        => methodName is "WithMessage" or "WithName" or "WithErrorCode" or "WithSeverity"
+            or "WithState" or "OverridePropertyName" or "Configure" or "Cascade"
+            or "DependentRules" or "ChildRules" or "SetValidator" or "SetInheritanceValidator"
+            or "When" or "Unless" or "WhenAsync" or "UnlessAsync"
+            or "WithDisplayName" or "WithErrorList";
+
+    private static (string Id, string Description) Describe(string methodName, IReadOnlyList<string> arguments)
     {
-        switch (typeName)
+        var arg0 = arguments.ElementAtOrDefault(0) ?? "";
+        var arg1 = arguments.ElementAtOrDefault(1) ?? "";
+
+        switch (methodName)
         {
-            case "NotNullValidator":
+            case "NotNull":
                 return ("NotNull", "Не должно быть null.");
-            case "NotEmptyValidator":
+            case "NotEmpty":
                 return ("NotEmpty", "Не должно быть пустым.");
-            case "NullValidator":
+            case "Null":
                 return ("Null", "Должно быть null.");
-            case "EmptyValidator":
+            case "Empty":
                 return ("Empty", "Должно быть пустым.");
-            case "MaximumLengthValidator":
-                {
-                    var max = GetInt(validator, "Max");
-                    return ($"MaximumLength:{max}", $"Максимальная длина: {max}.");
-                }
-            case "MinimumLengthValidator":
-                {
-                    var min = GetInt(validator, "Min");
-                    return ($"MinimumLength:{min}", $"Минимальная длина: {min}.");
-                }
-            case "ExactLengthValidator":
-                {
-                    var length = GetInt(validator, "Max");
-                    return ($"ExactLength:{length}", $"Длина должна быть равна {length}.");
-                }
-            case "LengthValidator":
-                {
-                    var min = GetInt(validator, "Min");
-                    var max = GetInt(validator, "Max");
-                    return ($"Length:{min}-{max}", $"Длина должна быть от {min} до {max}.");
-                }
-            case "InclusiveBetweenValidator":
-                {
-                    var from = FormatCompare(GetProperty(validator, "From"));
-                    var to = FormatCompare(GetProperty(validator, "To"));
-                    return ($"InclusiveBetween:{from}-{to}", $"Значение должно быть от {from} до {to} включительно.");
-                }
-            case "ExclusiveBetweenValidator":
-                {
-                    var from = FormatCompare(GetProperty(validator, "From"));
-                    var to = FormatCompare(GetProperty(validator, "To"));
-                    return ($"ExclusiveBetween:{from}-{to}", $"Значение должно быть между {from} и {to} исключительно.");
-                }
-            case "GreaterThanValidator":
-                {
-                    var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"GreaterThan:{value}", $"Должно быть больше {value}.");
-                }
-            case "GreaterThanOrEqualValidator":
-                {
-                    var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"GreaterThanOrEqual:{value}", $"Должно быть не меньше {value}.");
-                }
-            case "LessThanValidator":
-                {
-                    var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"LessThan:{value}", $"Должно быть меньше {value}.");
-                }
-            case "LessThanOrEqualValidator":
-                {
-                    var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"LessThanOrEqual:{value}", $"Должно быть не больше {value}.");
-                }
-            case "EqualValidator":
-                {
-                    var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"Equal:{value}", $"Должно быть равно {value}.");
-                }
-            case "NotEqualValidator":
-                {
-                    var value = FormatCompare(GetProperty(validator, "ValueToCompare"));
-                    return ($"NotEqual:{value}", $"Не должно быть равно {value}.");
-                }
-            case "RegularExpressionValidator":
-                {
-                    var expression = GetProperty(validator, "Expression")?.ToString() ?? GetProperty(validator, "Regex")?.ToString() ?? "";
-                    return ($"Matches:{expression}", $"Должно соответствовать шаблону `{expression}`.");
-                }
-            case "AspNetCoreCompatibleEmailValidator":
-            case "EmailValidator":
+            case "MaximumLength":
+                return ($"MaximumLength:{arg0}", $"Максимальная длина: {arg0}.");
+            case "MinimumLength":
+                return ($"MinimumLength:{arg0}", $"Минимальная длина: {arg0}.");
+            case "Length" when arguments.Count >= 2:
+                return ($"Length:{arg0}-{arg1}", $"Длина должна быть от {arg0} до {arg1}.");
+            case "Length":
+                return ($"ExactLength:{arg0}", $"Длина должна быть равна {arg0}.");
+            case "ExactLength":
+                return ($"ExactLength:{arg0}", $"Длина должна быть равна {arg0}.");
+            case "InclusiveBetween":
+                return ($"InclusiveBetween:{arg0}-{arg1}", $"Значение должно быть от {arg0} до {arg1} включительно.");
+            case "ExclusiveBetween":
+                return ($"ExclusiveBetween:{arg0}-{arg1}", $"Значение должно быть между {arg0} и {arg1} исключительно.");
+            case "GreaterThan":
+                return ($"GreaterThan:{arg0}", $"Должно быть больше {arg0}.");
+            case "GreaterThanOrEqualTo":
+                return ($"GreaterThanOrEqual:{arg0}", $"Должно быть не меньше {arg0}.");
+            case "LessThan":
+                return ($"LessThan:{arg0}", $"Должно быть меньше {arg0}.");
+            case "LessThanOrEqualTo":
+                return ($"LessThanOrEqual:{arg0}", $"Должно быть не больше {arg0}.");
+            case "EqualTo":
+            case "Equal":
+                return ($"Equal:{arg0}", $"Должно быть равно {arg0}.");
+            case "NotEqual":
+                return ($"NotEqual:{arg0}", $"Не должно быть равно {arg0}.");
+            case "Matches":
+                return ($"Matches:{arg0}", $"Должно соответствовать шаблону `{arg0}`.");
+            case "EmailAddress":
                 return ("EmailAddress", "Должно быть корректным адресом электронной почты.");
-            case "CreditCardValidator":
+            case "CreditCard":
                 return ("CreditCard", "Должно быть корректным номером банковской карты.");
-            case "EnumValidator":
+            case "IsInEnum":
                 return ("Enum", "Должно быть допустимым значением перечисления.");
-            case "ScalePrecisionValidator":
-                {
-                    var scale = GetInt(validator, "Scale");
-                    var precision = GetInt(validator, "Precision");
-                    return ($"ScalePrecision:{scale},{precision}", $"Масштаб {scale}, точность {precision}.");
-                }
-            case "PredicateValidator":
-            case "AsyncPredicateValidator":
-                {
-                    return ("Must", "Должно удовлетворять пользовательскому условию.");
-                }
+            case "ScalePrecision":
+                return ($"ScalePrecision:{arg0},{arg1}", $"Масштаб {arg0}, точность {arg1}.");
+            case "Must":
+            case "MustAsync":
+                return ("Must", "Должно удовлетворять пользовательскому условию.");
             default:
                 {
-                    if (Implements(validator, "INotEmptyValidator"))
-                        return ("NotEmpty", "Не должно быть пустым.");
-                    if (Implements(validator, "INotNullValidator"))
-                        return ("NotNull", "Не должно быть null.");
-                    if (Implements(validator, "IEmailValidator"))
-                        return ("EmailAddress", "Должно быть корректным адресом электронной почты.");
-                    if (Implements(validator, "IRegularExpressionValidator"))
-                    {
-                        var expression = GetProperty(validator, "Expression")?.ToString() ?? "";
-                        return ($"Matches:{expression}", $"Должно соответствовать шаблону `{expression}`.");
-                    }
-
-                    var friendly = SplitName(string.IsNullOrWhiteSpace(name) ? typeName : name);
-                    return (typeName, $"Должно удовлетворять `{friendly}`.");
+                    var friendly = SplitName(methodName);
+                    return (methodName, $"Должно удовлетворять `{friendly}`.");
                 }
         }
     }
-
-    private static string? GetCustomMessage(object propertyValidator, object component)
-    {
-        try
-        {
-            var method = component.GetType().GetMethod("GetUnformattedErrorMessage", BindingFlags.Public | BindingFlags.Instance);
-            var raw = method?.Invoke(component, null) as string;
-            if (string.IsNullOrWhiteSpace(raw))
-                return null;
-
-            var propertyValidatorInterface = propertyValidator.GetType()
-                .GetInterfaces()
-                .FirstOrDefault(i => i.Name == "IPropertyValidator" && i.GetMethod("GetDefaultMessageTemplate") is not null);
-            var defaultTemplate = propertyValidatorInterface?
-                .GetMethod("GetDefaultMessageTemplate")
-                ?.Invoke(propertyValidator, [""]) as string;
-
-            if (!string.IsNullOrWhiteSpace(defaultTemplate) && string.Equals(raw, defaultTemplate, StringComparison.Ordinal))
-                return null;
-
-            return raw;
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private static bool Implements(object instance, string interfaceName)
-        => ReflectionHelpers.ImplementsInterface(instance, interfaceName);
-
-    private static object? GetProperty(object instance, string name)
-        => ReflectionHelpers.GetPropertyValue(instance, name);
-
-    private static int GetInt(object instance, string name)
-    {
-        var value = GetProperty(instance, name);
-        return value switch
-        {
-            int i => i,
-            IConvertible convertible => convertible.ToInt32(CultureInfo.InvariantCulture),
-            _ => 0
-        };
-    }
-
-    private static string FormatCompare(object? value)
-        => ReflectionHelpers.FormatDefaultValue(value)?.Trim('"') ?? "null";
 
     private static string SplitName(string name)
     {

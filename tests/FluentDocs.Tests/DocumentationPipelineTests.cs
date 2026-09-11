@@ -1,5 +1,4 @@
 using System.Diagnostics;
-using FluentDocs.Tests.Fixtures;
 
 namespace FluentDocs.Tests;
 
@@ -9,8 +8,6 @@ public sealed class DocumentationPipelineTests
     public void Given_no_previous_snapshot_When_pipeline_runs_Then_initial_markdown_and_snapshot_are_written()
     {
         // Arrange
-        var assembly = typeof(SampleMailOptions).Assembly;
-        var xml = Path.ChangeExtension(assembly.Location, ".xml");
         using var directory = new TempDirectory();
         var output = Path.Combine(directory.Path, "settings.md");
         var snapshot = Path.Combine(directory.Path, "settings.snapshot.json");
@@ -18,9 +15,9 @@ public sealed class DocumentationPipelineTests
         // Act
         var result = DocumentationPipeline.Run(new DocumentationRequest
         {
-            Assembly = assembly,
-            AssemblyPath = assembly.Location,
-            XmlDocumentationPath = xml,
+            SourceFiles = TestCompilations.SampleSources(),
+            References = TestCompilations.MetadataReferences(),
+            XmlDocumentationPath = TestCompilations.SampleXmlPath(),
             OutputPath = output,
             SnapshotPath = snapshot
         });
@@ -36,19 +33,18 @@ public sealed class DocumentationPipelineTests
     public void Given_snapshot_with_old_rule_When_pipeline_runs_Then_changelog_reports_constraint_change()
     {
         // Arrange
-        var assembly = typeof(SampleMailOptions).Assembly;
-        var xml = Path.ChangeExtension(assembly.Location, ".xml");
         using var directory = new TempDirectory();
         var output = Path.Combine(directory.Path, "settings.md");
         var snapshot = Path.Combine(directory.Path, "settings.snapshot.json");
-        DocumentationPipeline.Run(new DocumentationRequest
+        var request = new DocumentationRequest
         {
-            Assembly = assembly,
-            AssemblyPath = assembly.Location,
-            XmlDocumentationPath = xml,
+            SourceFiles = TestCompilations.SampleSources(),
+            References = TestCompilations.MetadataReferences(),
+            XmlDocumentationPath = TestCompilations.SampleXmlPath(),
             OutputPath = output,
             SnapshotPath = snapshot
-        });
+        };
+        DocumentationPipeline.Run(request);
         var previous = SnapshotSerializer.ReadFromFile(snapshot);
         var host = previous.Types.Single(t => t.Name == "SampleMailOptions").Properties.Single(p => p.Path == "Host");
         host.Rules.RemoveAll(r => r.Id == "MaximumLength:255");
@@ -56,14 +52,7 @@ public sealed class DocumentationPipelineTests
         SnapshotSerializer.WriteToFile(snapshot, previous);
 
         // Act
-        var result = DocumentationPipeline.Run(new DocumentationRequest
-        {
-            Assembly = assembly,
-            AssemblyPath = assembly.Location,
-            XmlDocumentationPath = xml,
-            OutputPath = output,
-            SnapshotPath = snapshot
-        });
+        var result = DocumentationPipeline.Run(request);
 
         // Assert
         result.IsInitial.Should().BeFalse();

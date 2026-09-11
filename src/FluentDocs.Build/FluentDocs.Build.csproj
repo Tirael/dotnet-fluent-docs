@@ -4,7 +4,7 @@
     <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
     <DevelopmentDependency>true</DevelopmentDependency>
     <PackageId>FluentDocs.Build</PackageId>
-    <Description>Интеграция MSBuild: запускает FluentDocs после компиляции приложения.</Description>
+    <Description>Интеграция MSBuild: после сборки передаёт исходники в FluentDocs.Tool для разбора Roslyn.</Description>
     <IsPackable>true</IsPackable>
     <NoWarn>$(NoWarn);NU5128</NoWarn>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>

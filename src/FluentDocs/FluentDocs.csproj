@@ -2,8 +2,11 @@
   <PropertyGroup>
     <RootNamespace>FluentDocs</RootNamespace>
     <PackageId>FluentDocs</PackageId>
-    <Description>Анализирует валидаторы FluentValidation и XML-комментарии и формирует каталог настроек с журналом изменений.</Description>
+    <Description>Разбирает исходники валидаторов FluentValidation через Roslyn и XML-комментарии и формирует каталог настроек с журналом изменений.</Description>
     <IsPackable>true</IsPackable>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.CSharp" />
+  </ItemGroup>
 </Project>

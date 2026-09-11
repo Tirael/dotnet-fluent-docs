@@ -1,56 +1,49 @@
-using System.Collections;
-using System.Reflection;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace FluentDocs.Analysis;
 
 /// <summary>
-/// Строит <see cref="SettingsCatalog"/> по собранной сборке и необязательному XML-файлу документации.
+/// Строит <see cref="SettingsCatalog"/> по исходникам валидаторов через Roslyn.
 /// </summary>
 public static class CatalogGenerator
 {
-    private const string SettingsDocsAttributeName = "FluentDocs.SettingsDocsAttribute";
-    private const string ValidatorInterfaceName = "IValidator`1";
-
     /// <summary>
-    /// Анализирует валидаторы, уже загруженные в текущий контекст.
+    /// Анализирует уже собранную компиляцию Roslyn.
     /// </summary>
-    public static SettingsCatalog Generate(Assembly assembly, string? xmlDocumentationPath = null)
-        => GenerateCore(assembly, xmlDocumentationPath);
-
-    /// <summary>
-    /// Загружает <paramref name="assemblyPath"/> в изолированный контекст и анализирует валидаторы.
-    /// </summary>
-    public static SettingsCatalog GenerateFromPath(string assemblyPath, string? xmlDocumentationPath = null)
+    public static SettingsCatalog Generate(Compilation compilation, string? xmlDocumentationPath = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(assemblyPath);
-        var fullPath = Path.GetFullPath(assemblyPath);
-        if (!File.Exists(fullPath))
-            throw new FileNotFoundException($"Сборка '{fullPath}' не найдена.", fullPath);
-
-        var context = new PluginLoadContext(fullPath);
-        try
-        {
-            var assembly = context.LoadFromAssemblyPath(fullPath);
-            return GenerateCore(assembly, xmlDocumentationPath);
-        }
-        finally
-        {
-            context.Unload();
-        }
+        ArgumentNullException.ThrowIfNull(compilation);
+        return GenerateCore(compilation, xmlDocumentationPath);
     }
 
-    private static SettingsCatalog GenerateCore(Assembly assembly, string? xmlDocumentationPath)
+    /// <summary>
+    /// Собирает компиляцию из списков файлов и анализирует валидаторы.
+    /// </summary>
+    public static SettingsCatalog GenerateFromFiles(
+        IEnumerable<string> sourceFiles,
+        IEnumerable<string> metadataReferences,
+        string? xmlDocumentationPath = null)
+    {
+        var compilation = CompilationFactory.Create(sourceFiles, metadataReferences);
+        return GenerateCore(compilation, xmlDocumentationPath);
+    }
+
+    private static SettingsCatalog GenerateCore(Compilation compilation, string? xmlDocumentationPath)
     {
         var xml = XmlDocumentationReader.Load(xmlDocumentationPath);
         var warnings = new List<string>();
-        var validators = DiscoverValidators(assembly, warnings);
-        var settingsTypes = SelectSettingsTypes(validators);
+        var validators = DiscoverValidators(compilation);
 
+        if (validators.Count == 0 && compilation.GetDiagnostics().Any(d => d.Severity == DiagnosticSeverity.Error))
+            warnings.Add("Компиляция исходников содержит ошибки; валидаторы FluentValidation не найдены.");
+
+        var selected = SelectSettingsTypes(validators);
+        var extractor = new ValidatorRuleExtractor(compilation, xml, warnings);
         var documents = new List<SettingsTypeDocument>();
-        foreach (var (modelType, validatorType, validatorInstance) in settingsTypes.OrderBy(x => x.ModelType.FullName, StringComparer.Ordinal))
-        {
-            documents.Add(BuildTypeDocument(modelType, validatorType, validatorInstance, xml, warnings));
-        }
+
+        foreach (var (modelType, validatorType) in selected.OrderBy(x => x.ModelType.ToDisplayString(), StringComparer.Ordinal))
+            documents.Add(BuildTypeDocument(modelType, validatorType, xml, extractor, compilation));
 
         return new SettingsCatalog
         {
@@ -60,43 +53,52 @@ public static class CatalogGenerator
         };
     }
 
-    private static List<(Type ValidatorType, Type ModelType, object? Instance)> DiscoverValidators(Assembly assembly, List<string> warnings)
+    private static List<(INamedTypeSymbol ValidatorType, ITypeSymbol ModelType)> DiscoverValidators(Compilation compilation)
     {
-        var discovered = new List<(Type ValidatorType, Type ModelType, object? Instance)>();
-        foreach (var type in assembly.GetTypes())
+        var discovered = new List<(INamedTypeSymbol ValidatorType, ITypeSymbol ModelType)>();
+        foreach (var type in EnumerateNamedTypes(compilation.GlobalNamespace))
         {
-            if (!type.IsClass || type.IsAbstract)
+            if (type.TypeKind != TypeKind.Class || type.IsAbstract)
                 continue;
 
-            var modelType = GetValidatedType(type);
+            var modelType = ValidatorRuleExtractor.GetValidatedType(type);
             if (modelType is null)
                 continue;
 
-            object? instance = null;
-            try
-            {
-                instance = Activator.CreateInstance(type);
-            }
-            catch (Exception ex)
-            {
-                warnings.Add($"Не удалось создать экземпляр валидатора '{type.FullName}' (в v1 нужен конструктор без параметров): {ex.GetBaseException().Message}");
-            }
-
-            discovered.Add((type, modelType, instance));
+            discovered.Add((type, modelType));
         }
 
         return discovered;
     }
 
-    private static Type? GetValidatedType(Type validatorType)
+    private static IEnumerable<INamedTypeSymbol> EnumerateNamedTypes(INamespaceSymbol ns)
     {
-        var validatorInterface = validatorType.GetInterfaces()
-            .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition().Name == ValidatorInterfaceName);
-        return validatorInterface?.GetGenericArguments()[0];
+        foreach (var type in ns.GetTypeMembers())
+        {
+            yield return type;
+            foreach (var nested in EnumerateNested(type))
+                yield return nested;
+        }
+
+        foreach (var child in ns.GetNamespaceMembers())
+        {
+            foreach (var type in EnumerateNamedTypes(child))
+                yield return type;
+        }
     }
 
-    private static List<(Type ModelType, Type ValidatorType, object? Instance)> SelectSettingsTypes(
-        List<(Type ValidatorType, Type ModelType, object? Instance)> validators)
+    private static IEnumerable<INamedTypeSymbol> EnumerateNested(INamedTypeSymbol type)
+    {
+        foreach (var nested in type.GetTypeMembers())
+        {
+            yield return nested;
+            foreach (var deeper in EnumerateNested(nested))
+                yield return deeper;
+        }
+    }
+
+    private static List<(ITypeSymbol ModelType, INamedTypeSymbol ValidatorType)> SelectSettingsTypes(
+        List<(INamedTypeSymbol ValidatorType, ITypeSymbol ModelType)> validators)
     {
         var attributed = validators
             .Where(v => GetConfigurationPath(v.ModelType) is not null || HasSettingsDocsAttribute(v.ModelType))
@@ -110,30 +112,40 @@ public static class CatalogGenerator
             selected = validators;
 
         return selected
-            .GroupBy(v => v.ModelType)
+            .GroupBy(v => v.ModelType.ToDisplayString(), StringComparer.Ordinal)
             .Select(g =>
             {
-                var preferred = g.FirstOrDefault(x => x.Instance is not null);
-                var fallback = g.First();
-                var chosen = preferred.ValidatorType is not null ? preferred : fallback;
-                return (chosen.ModelType, chosen.ValidatorType, chosen.Instance);
+                var items = g.ToList();
+                var preferred = items.FirstOrDefault(x => x.ValidatorType.Name == x.ModelType.Name + "Validator");
+                var chosen = preferred.ValidatorType is not null ? preferred : items[0];
+                return (chosen.ModelType, chosen.ValidatorType);
             })
             .ToList();
     }
 
-    private static bool HasSettingsDocsAttribute(Type type)
-        => type.GetCustomAttributes(inherit: false).Any(a => a.GetType().FullName == SettingsDocsAttributeName);
+    private static bool HasSettingsDocsAttribute(ITypeSymbol type)
+        => type.GetAttributes().Any(IsSettingsDocsAttribute);
 
-    private static string? GetConfigurationPath(Type type)
+    private static string? GetConfigurationPath(ITypeSymbol type)
     {
-        var attribute = type.GetCustomAttributes(inherit: false)
-            .FirstOrDefault(a => a.GetType().FullName == SettingsDocsAttributeName);
-        return attribute is null
-            ? null
-            : ReflectionHelpers.GetPropertyValue<string>(attribute, "ConfigurationPath");
+        var attribute = type.GetAttributes().FirstOrDefault(IsSettingsDocsAttribute);
+        if (attribute is null)
+            return null;
+
+        if (attribute.ConstructorArguments.Length > 0 && attribute.ConstructorArguments[0].Value is string path)
+            return path;
+
+        var named = attribute.NamedArguments.FirstOrDefault(p => p.Key == "ConfigurationPath");
+        return named.Value.Value as string;
     }
 
-    private static bool LooksLikeSettingsType(Type type)
+    private static bool IsSettingsDocsAttribute(AttributeData attribute)
+    {
+        var name = attribute.AttributeClass?.Name;
+        return name is "SettingsDocsAttribute" or "SettingsDocs";
+    }
+
+    private static bool LooksLikeSettingsType(ITypeSymbol type)
     {
         var name = type.Name;
         return name.EndsWith("Options", StringComparison.Ordinal)
@@ -143,33 +155,24 @@ public static class CatalogGenerator
     }
 
     private static SettingsTypeDocument BuildTypeDocument(
-        Type modelType,
-        Type validatorType,
-        object? validatorInstance,
+        ITypeSymbol modelType,
+        INamedTypeSymbol validatorType,
         XmlDocumentationReader xml,
-        List<string> warnings)
+        ValidatorRuleExtractor extractor,
+        Compilation compilation)
     {
-        var typeDocs = xml.Get(ReflectionHelpers.DocumentationId(modelType));
+        var typeDocs = xml.Get(modelType);
         var document = new SettingsTypeDocument
         {
-            FullName = modelType.FullName ?? modelType.Name,
+            FullName = modelType.ToDisplayString(),
             Name = modelType.Name,
             ConfigurationPath = GetConfigurationPath(modelType),
             Summary = typeDocs?.Summary,
             Remarks = typeDocs?.Remarks
         };
 
-        var defaults = TryCreate(modelType);
-        AddDeclaredProperties(modelType, prefix: "", defaults, document, xml);
-
-        if (validatorInstance is not null)
-        {
-            ExtractRules(validatorInstance, prefix: "", modelType, defaults, document, xml, warnings, []);
-        }
-        else
-        {
-            warnings.Add($"Для типа настроек '{modelType.FullName}' не удалось создать валидатор '{validatorType.FullName}'.");
-        }
+        AddDeclaredProperties(modelType, document, xml, compilation);
+        extractor.Extract(validatorType, prefix: "", modelType, document, []);
 
         document.Properties = document.Properties
             .OrderBy(p => p.Path, StringComparer.Ordinal)
@@ -188,173 +191,30 @@ public static class CatalogGenerator
     }
 
     private static void AddDeclaredProperties(
-        Type type,
-        string prefix,
-        object? instance,
+        ITypeSymbol type,
         SettingsTypeDocument document,
-        XmlDocumentationReader xml)
+        XmlDocumentationReader xml,
+        Compilation compilation)
     {
         foreach (var property in GetPublicProperties(type))
-        {
-            var path = CombinePath(prefix, property.Name, collection: false);
-            EnsureProperty(document, path, property, instance, xml);
-        }
+            EnsureProperty(document, property.Name, property, property.Type, collectionRule: false, xml, compilation);
     }
 
-    private static void ExtractRules(
-        object validator,
-        string prefix,
-        Type modelType,
-        object? defaults,
-        SettingsTypeDocument document,
-        XmlDocumentationReader xml,
-        List<string> warnings,
-        HashSet<Type> chain)
-    {
-        var validatorType = validator.GetType();
-        if (!chain.Add(validatorType))
-            return;
-
-        object? descriptor;
-        try
-        {
-            descriptor = ReflectionHelpers.Invoke(validator, "CreateDescriptor");
-        }
-        catch (Exception ex)
-        {
-            warnings.Add($"CreateDescriptor завершился с ошибкой для '{validatorType.FullName}': {ex.GetBaseException().Message}");
-            return;
-        }
-
-        if (descriptor is null)
-            return;
-
-        if (ReflectionHelpers.GetPropertyValue(descriptor, "Rules") is not IEnumerable rules)
-            return;
-
-        foreach (var rule in rules)
-        {
-            ProcessRule(rule, prefix, modelType, defaults, document, xml, warnings, chain);
-        }
-    }
-
-    private static void ProcessRule(
-        object rule,
-        string prefix,
-        Type modelType,
-        object? defaults,
-        SettingsTypeDocument document,
-        XmlDocumentationReader xml,
-        List<string> warnings,
-        HashSet<Type> chain)
-    {
-        var propertyName = ReflectionHelpers.GetPropertyValue<string>(rule, "PropertyName");
-        var member = ReflectionHelpers.GetPropertyValue(rule, "Member") as MemberInfo;
-        var typeToValidate = ReflectionHelpers.GetPropertyValue(rule, "TypeToValidate") as Type;
-        var isCollectionRule = ReflectionHelpers.GetNonGenericName(rule.GetType()) == "CollectionPropertyRule";
-        var ruleHasCondition = ReflectionHelpers.GetPropertyValue<bool>(rule, "HasCondition")
-                               || ReflectionHelpers.GetPropertyValue<bool>(rule, "HasAsyncCondition");
-        var ruleSets = ReflectionHelpers.GetPropertyValue(rule, "RuleSets") as string[];
-        var ruleSet = ruleSets is { Length: > 0 } ? string.Join(",", ruleSets.Where(s => !string.IsNullOrWhiteSpace(s) && s != "default")) : null;
-
-        PropertyInfo? property = member as PropertyInfo
-                                 ?? (propertyName is null ? null : modelType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase));
-
-        var path = string.IsNullOrWhiteSpace(propertyName)
-            ? prefix
-            : CombinePath(prefix, propertyName, isCollectionRule);
-
-        if (!string.IsNullOrWhiteSpace(path) && property is not null)
-            EnsureProperty(document, path, property, defaults, xml, typeToValidate, isCollectionRule);
-
-        if (ReflectionHelpers.GetPropertyValue(rule, "Components") is IEnumerable components)
-        {
-            foreach (var component in components)
-            {
-                var propertyValidator = ReflectionHelpers.GetPropertyValue(component, "Validator");
-                if (propertyValidator is null)
-                    continue;
-
-                if (TryGetChildValidator(propertyValidator, warnings) is { } child)
-                {
-                    var childModel = typeToValidate
-                                     ?? (isCollectionRule ? ReflectionHelpers.GetCollectionElementType(property?.PropertyType ?? modelType) : property?.PropertyType)
-                                     ?? child.GetType();
-                    var childPrefix = string.IsNullOrWhiteSpace(path) ? prefix : path;
-                    ExtractRules(child, childPrefix, childModel, defaults, document, xml, warnings, [.. chain]);
-                    continue;
-                }
-
-                var humanized = RuleHumanizer.Humanize(propertyValidator, component, ruleHasCondition, ruleSet);
-                if (humanized is null || string.IsNullOrWhiteSpace(path))
-                    continue;
-
-                var target = document.Properties.FirstOrDefault(p => p.Path == path);
-                if (target is null)
-                {
-                    target = new SettingsPropertyDocument
-                    {
-                        Path = path,
-                        ClrType = typeToValidate is null ? "object" : ReflectionHelpers.FormatClrType(typeToValidate)
-                    };
-                    document.Properties.Add(target);
-                }
-
-                if (target.Rules.All(r => r.Id != humanized.Id))
-                    target.Rules.Add(humanized);
-            }
-        }
-
-        if (ReflectionHelpers.GetPropertyValue(rule, "DependentRules") is IEnumerable dependentRules)
-        {
-            var dependentPrefix = string.IsNullOrWhiteSpace(path) ? prefix : path;
-            var dependentModel = isCollectionRule
-                ? ReflectionHelpers.GetCollectionElementType(property?.PropertyType ?? typeToValidate ?? modelType) ?? modelType
-                : property?.PropertyType ?? modelType;
-            foreach (var dependent in dependentRules)
-            {
-                ProcessRule(dependent, dependentPrefix, dependentModel, defaults, document, xml, warnings, chain);
-            }
-        }
-    }
-
-    private static object? TryGetChildValidator(object propertyValidator, List<string> warnings)
-    {
-        if (!ReflectionHelpers.ImplementsInterface(propertyValidator, "IChildValidatorAdaptor")
-            && ReflectionHelpers.GetNonGenericName(propertyValidator.GetType()) != "ChildValidatorAdaptor")
-        {
-            return null;
-        }
-
-        if (ReflectionHelpers.GetPropertyValue(propertyValidator, "ValidatorType") is not Type validatorType)
-            return null;
-
-        try
-        {
-            return Activator.CreateInstance(validatorType);
-        }
-        catch (Exception ex)
-        {
-            warnings.Add($"Не удалось создать вложенный валидатор '{validatorType.FullName}': {ex.GetBaseException().Message}");
-            return null;
-        }
-    }
-
-    private static void EnsureProperty(
+    internal static void EnsureProperty(
         SettingsTypeDocument document,
         string path,
-        PropertyInfo property,
-        object? instance,
+        IPropertySymbol property,
+        ITypeSymbol currentType,
+        bool collectionRule,
         XmlDocumentationReader xml,
-        Type? typeOverride = null,
-        bool collectionRule = false)
+        Compilation compilation)
     {
         var existing = document.Properties.FirstOrDefault(p => p.Path == path);
-        var clrType = collectionRule && ReflectionHelpers.GetCollectionElementType(property.PropertyType) is { } element
-            ? $"{ReflectionHelpers.FormatClrType(element)}[]"
-            : ReflectionHelpers.FormatClrType(typeOverride ?? property.PropertyType);
-        var docs = xml.Get(ReflectionHelpers.DocumentationId(property));
-        var defaultValue = FormatDefaultForPath(instance, path);
+        var clrType = collectionRule && TypeSymbolFormatter.GetCollectionElementType(property.Type) is { } element
+            ? $"{TypeSymbolFormatter.Format(element)}[]"
+            : TypeSymbolFormatter.Format(collectionRule ? currentType : property.Type);
+        var docs = xml.Get(property);
+        var defaultValue = FormatDefault(property, path, compilation);
 
         if (existing is null)
         {
@@ -378,48 +238,57 @@ public static class CatalogGenerator
             existing.ClrType = clrType;
     }
 
-    private static IEnumerable<PropertyInfo> GetPublicProperties(Type type)
-        => type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-            .Where(p => p.CanRead && p.GetIndexParameters().Length == 0);
+    private static IEnumerable<IPropertySymbol> GetPublicProperties(ITypeSymbol type)
+        => type.GetMembers()
+            .OfType<IPropertySymbol>()
+            .Where(p => p.DeclaredAccessibility == Accessibility.Public
+                        && !p.IsStatic
+                        && p.GetMethod is not null
+                        && p.Parameters.Length == 0);
 
-    private static object? TryCreate(Type type)
+    private static string? FormatDefault(IPropertySymbol property, string path, Compilation compilation)
     {
-        try
-        {
-            return Activator.CreateInstance(type);
-        }
-        catch
-        {
-            return null;
-        }
-    }
-
-    private static string? FormatDefaultForPath(object? root, string path)
-    {
-        if (root is null)
+        if (path.Contains("[]", StringComparison.Ordinal) && !path.EndsWith("[]", StringComparison.Ordinal))
             return null;
 
-        object? current = root;
-        var segments = path.Split('.', StringSplitOptions.RemoveEmptyEntries);
-        for (var i = 0; i < segments.Length; i++)
-        {
-            if (current is null)
-                return null;
+        return FormatPropertyDefault(property, compilation);
+    }
 
-            var segment = segments[i];
-            var collection = segment.EndsWith("[]", StringComparison.Ordinal);
-            var name = collection ? segment[..^2] : segment;
-            current = current.GetType().GetProperty(name, BindingFlags.Public | BindingFlags.Instance)?.GetValue(current);
-            if (collection)
-                return i == segments.Length - 1 ? ReflectionHelpers.FormatDefaultValue(current) : null;
+    private static string? FormatPropertyDefault(IPropertySymbol property, Compilation compilation)
+    {
+        foreach (var syntaxRef in property.DeclaringSyntaxReferences)
+        {
+            if (syntaxRef.GetSyntax() is not PropertyDeclarationSyntax declaration || declaration.Initializer is null)
+                continue;
+
+            var expression = declaration.Initializer.Value;
+            var model = compilation.GetSemanticModel(declaration.SyntaxTree);
+            var constant = model.GetConstantValue(expression);
+            if (constant.HasValue)
+                return ValueFormatter.FormatConstant(constant.Value);
+
+            if (IsEmptyCollectionExpression(expression) && TypeSymbolFormatter.IsCollection(property.Type))
+                return "[]";
+
+            if (expression is ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax)
+                return TypeSymbolFormatter.IsCollection(property.Type) && IsEmptyCreation(expression) ? "[]" : null;
         }
 
-        return ReflectionHelpers.FormatDefaultValue(current);
+        return property.Type.IsValueType ? ValueFormatter.FormatTypeDefault(property.Type) : null;
     }
 
-    private static string CombinePath(string prefix, string name, bool collection)
-    {
-        var segment = collection ? $"{name}[]" : name;
-        return string.IsNullOrWhiteSpace(prefix) ? segment : $"{prefix}.{segment}";
-    }
+    private static bool IsEmptyCollectionExpression(ExpressionSyntax expression)
+        => expression is CollectionExpressionSyntax { Elements.Count: 0 }
+           || expression is ArrayCreationExpressionSyntax { Initializer: null or { Expressions.Count: 0 } }
+           || expression is ImplicitArrayCreationExpressionSyntax { Initializer.Expressions.Count: 0 };
+
+    private static bool IsEmptyCreation(ExpressionSyntax expression)
+        => expression switch
+        {
+            ObjectCreationExpressionSyntax creation => creation.Initializer is null or { Expressions.Count: 0 }
+                                                       && (creation.ArgumentList is null || creation.ArgumentList.Arguments.Count == 0),
+            ImplicitObjectCreationExpressionSyntax creation => creation.Initializer is null or { Expressions.Count: 0 }
+                                                              && (creation.ArgumentList is null || creation.ArgumentList.Arguments.Count == 0),
+            _ => false
+        };
 }

@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Microsoft.CodeAnalysis;
 
 namespace FluentDocs.Analysis;
 
@@ -47,6 +48,47 @@ internal sealed class XmlDocumentationReader
 
     public XmlMemberDocs? Get(string documentationId)
         => _members.TryGetValue(documentationId, out var docs) ? docs : null;
+
+    /// <summary>
+    /// Берёт комментарий из XML-файла компилятора, иначе из исходника через Roslyn.
+    /// </summary>
+    public XmlMemberDocs? Get(ISymbol symbol)
+    {
+        var id = symbol.GetDocumentationCommentId();
+        var fromFile = id is null ? null : Get(id);
+        var fromSource = ParseSymbolComment(symbol);
+        if (fromFile is null)
+            return fromSource;
+        if (fromSource is null)
+            return fromFile;
+
+        return new XmlMemberDocs
+        {
+            Summary = fromFile.Summary ?? fromSource.Summary,
+            Remarks = fromFile.Remarks ?? fromSource.Remarks
+        };
+    }
+
+    private static XmlMemberDocs? ParseSymbolComment(ISymbol symbol)
+    {
+        var xml = symbol.GetDocumentationCommentXml(expandIncludes: true);
+        if (string.IsNullOrWhiteSpace(xml))
+            return null;
+
+        try
+        {
+            var element = XElement.Parse(xml);
+            return new XmlMemberDocs
+            {
+                Summary = Normalize(element.Element("summary") ?? element.Descendants("summary").FirstOrDefault()),
+                Remarks = Normalize(element.Element("remarks") ?? element.Descendants("remarks").FirstOrDefault())
+            };
+        }
+        catch (System.Xml.XmlException)
+        {
+            return new XmlMemberDocs { Summary = Normalize(xml) };
+        }
+    }
 
     internal static string? Normalize(XElement? element)
     {
