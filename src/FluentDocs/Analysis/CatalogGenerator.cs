@@ -277,7 +277,8 @@ public static class CatalogGenerator
                 return TypeSymbolFormatter.IsCollection(property.Type) && IsEmptyCreation(expression) ? "[]" : null;
         }
 
-        return property.Type.IsValueType ? ValueFormatter.FormatTypeDefault(property.Type) : null;
+        // Как у Activator.CreateInstance: ссылочный тип без инициализатора даёт null.
+        return property.Type.IsValueType ? ValueFormatter.FormatTypeDefault(property.Type) : "null";
     }
 
     private static bool IsEmptyCollectionExpression(ExpressionSyntax expression)
