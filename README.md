@@ -1,4 +1,4 @@
-# FluentDocs
+# dotnet-features-changelogs
 
 Библиотека для .NET 10, которая **при сборке** приложения читает XML-комментарии классов настроек и правила [FluentValidation](https://docs.fluentvalidation.net/), затем пишет:
 

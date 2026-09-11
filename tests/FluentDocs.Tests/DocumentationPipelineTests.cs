@@ -102,8 +102,8 @@ public sealed class DemoAppBuildTests
         var directory = new DirectoryInfo(AppContext.BaseDirectory);
         while (directory is not null)
         {
-            if (File.Exists(Path.Combine(directory.FullName, "dotnet-fluent-docs.sln"))
-                || File.Exists(Path.Combine(directory.FullName, "dotnet-fluent-docs.slnx")))
+            if (File.Exists(Path.Combine(directory.FullName, "dotnet-features-changelogs.sln"))
+                || File.Exists(Path.Combine(directory.FullName, "dotnet-features-changelogs.slnx")))
                 return directory.FullName;
             directory = directory.Parent;
         }
