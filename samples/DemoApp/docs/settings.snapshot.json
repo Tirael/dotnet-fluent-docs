@@ -5,30 +5,30 @@
       "fullName": "DemoApp.Options.MailOptions",
       "name": "MailOptions",
       "configurationPath": "Mail",
-      "summary": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 SMTP-\u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438 \u043F\u043E\u0447\u0442\u044B.",
-      "remarks": "\u041F\u0440\u0438\u0432\u044F\u0437\u044B\u0432\u0430\u044E\u0442\u0441\u044F \u043A \u0441\u0435\u043A\u0446\u0438\u0438 \u043A\u043E\u043D\u0444\u0438\u0433\u0443\u0440\u0430\u0446\u0438\u0438 Mail.",
+      "summary": "Настройки SMTP-отправки почты.",
+      "remarks": "Привязываются к секции конфигурации Mail.",
       "properties": [
         {
           "path": "AllowedSenderPatterns",
-          "clrType": "List\u003Cstring\u003E",
+          "clrType": "List<string>",
           "defaultValue": "[]",
-          "summary": "\u0420\u0435\u0433\u0443\u043B\u044F\u0440\u043D\u044B\u0435 \u0432\u044B\u0440\u0430\u0436\u0435\u043D\u0438\u044F, \u043A\u043E\u0442\u043E\u0440\u044B\u043C \u0434\u043E\u043B\u0436\u043D\u044B \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0430\u0434\u0440\u0435\u0441\u0430 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u0435\u043B\u044F.",
+          "summary": "Регулярные выражения, которым должны соответствовать адреса отправителя.",
           "rules": []
         },
         {
           "path": "AllowedSenderPatterns[]",
           "clrType": "string[]",
           "defaultValue": "[]",
-          "summary": "\u0420\u0435\u0433\u0443\u043B\u044F\u0440\u043D\u044B\u0435 \u0432\u044B\u0440\u0430\u0436\u0435\u043D\u0438\u044F, \u043A\u043E\u0442\u043E\u0440\u044B\u043C \u0434\u043E\u043B\u0436\u043D\u044B \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0430\u0434\u0440\u0435\u0441\u0430 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u0435\u043B\u044F.",
+          "summary": "Регулярные выражения, которым должны соответствовать адреса отправителя.",
           "rules": [
             {
               "id": "Matches:^.*$",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0448\u0430\u0431\u043B\u043E\u043D\u0443 \u0060^.*$\u0060.",
+              "description": "Должно соответствовать шаблону `^.*$`.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
+              "description": "Не должно быть пустым.",
               "hasCondition": false
             }
           ]
@@ -37,24 +37,24 @@
           "path": "EnableTls",
           "clrType": "bool",
           "defaultValue": "true",
-          "summary": "\u0415\u0441\u043B\u0438 true, \u043F\u043E\u0441\u043B\u0435 \u043F\u043E\u0434\u043A\u043B\u044E\u0447\u0435\u043D\u0438\u044F \u043A\u043B\u0438\u0435\u043D\u0442 \u043F\u043E\u0434\u043D\u0438\u043C\u0430\u0435\u0442 TLS.",
+          "summary": "Если true, после подключения клиент поднимает TLS.",
           "rules": []
         },
         {
           "path": "From",
           "clrType": "string",
-          "defaultValue": "\u0022noreply@localhost\u0022",
-          "summary": "\u0410\u0434\u0440\u0435\u0441 \u043E\u0442\u043F\u0440\u0430\u0432\u0438\u0442\u0435\u043B\u044F \u0438\u0441\u0445\u043E\u0434\u044F\u0449\u0435\u0439 \u043F\u043E\u0447\u0442\u044B.",
+          "defaultValue": "\"noreply@localhost\"",
+          "summary": "Адрес отправителя исходящей почты.",
           "rules": [
             {
               "id": "EmailAddress",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0430\u0434\u0440\u0435\u0441\u043E\u043C \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B.",
-              "message": "From \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0430\u0434\u0440\u0435\u0441\u043E\u043C \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B.",
+              "description": "Должно быть корректным адресом электронной почты.",
+              "message": "From должен быть корректным адресом электронной почты.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
+              "description": "Не должно быть пустым.",
               "hasCondition": false
             }
           ]
@@ -62,18 +62,18 @@
         {
           "path": "Host",
           "clrType": "string",
-          "defaultValue": "\u0022localhost\u0022",
-          "summary": "\u0418\u043C\u044F \u0438\u043B\u0438 \u0430\u0434\u0440\u0435\u0441 SMTP-\u0445\u043E\u0441\u0442\u0430.",
+          "defaultValue": "\"localhost\"",
+          "summary": "Имя или адрес SMTP-хоста.",
           "rules": [
             {
               "id": "MaximumLength:255",
-              "description": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u0430\u044F \u0434\u043B\u0438\u043D\u0430: 255.",
-              "message": "SMTP-\u0445\u043E\u0441\u0442 \u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u0435\u043D \u0438 \u043D\u0435 \u0434\u043B\u0438\u043D\u043D\u0435\u0435 255 \u0441\u0438\u043C\u0432\u043E\u043B\u043E\u0432.",
+              "description": "Максимальная длина: 255.",
+              "message": "SMTP-хост обязателен и не длиннее 255 символов.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
+              "description": "Не должно быть пустым.",
               "hasCondition": false
             }
           ]
@@ -82,30 +82,30 @@
           "path": "Port",
           "clrType": "int",
           "defaultValue": "25",
-          "summary": "TCP-\u043F\u043E\u0440\u0442 SMTP.",
+          "summary": "TCP-порт SMTP.",
           "rules": [
             {
               "id": "GreaterThanOrEqual:465",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043D\u0435 \u043C\u0435\u043D\u044C\u0448\u0435 465.",
-              "message": "\u0414\u043B\u044F TLS \u043E\u0431\u044B\u0447\u043D\u043E \u0438\u0441\u043F\u043E\u043B\u044C\u0437\u0443\u044E\u0442 \u043F\u043E\u0440\u0442 465 \u0438\u043B\u0438 587.",
+              "description": "Должно быть не меньше 465.",
+              "message": "Для TLS обычно используют порт 465 или 587.",
               "hasCondition": true
             },
             {
               "id": "InclusiveBetween:1-65535",
-              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 65535 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
+              "description": "Значение должно быть от 1 до 65535 включительно.",
               "hasCondition": false
             }
           ]
         },
         {
           "path": "Recipients",
-          "clrType": "List\u003CRecipientOptions\u003E",
+          "clrType": "List<RecipientOptions>",
           "defaultValue": "[]",
-          "summary": "\u041F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u0438, \u043A\u043E\u0442\u043E\u0440\u044B\u0435 \u0432\u0441\u0435\u0433\u0434\u0430 \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442 \u043A\u043E\u043F\u0438\u044E \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439.",
+          "summary": "Получатели, которые всегда получают копию системных уведомлений.",
           "rules": [
             {
               "id": "NotNull",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C null.",
+              "description": "Не должно быть null.",
               "hasCondition": false
             }
           ]
@@ -114,22 +114,22 @@
           "path": "Recipients[]",
           "clrType": "RecipientOptions[]",
           "defaultValue": "[]",
-          "summary": "\u041F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u0438, \u043A\u043E\u0442\u043E\u0440\u044B\u0435 \u0432\u0441\u0435\u0433\u0434\u0430 \u043F\u043E\u043B\u0443\u0447\u0430\u044E\u0442 \u043A\u043E\u043F\u0438\u044E \u0441\u0438\u0441\u0442\u0435\u043C\u043D\u044B\u0445 \u0443\u0432\u0435\u0434\u043E\u043C\u043B\u0435\u043D\u0438\u0439.",
+          "summary": "Получатели, которые всегда получают копию системных уведомлений.",
           "rules": []
         },
         {
           "path": "Recipients[].Email",
           "clrType": "string",
-          "summary": "\u0410\u0434\u0440\u0435\u0441 \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B \u043F\u043E\u043B\u0443\u0447\u0430\u0442\u0435\u043B\u044F.",
+          "summary": "Адрес электронной почты получателя.",
           "rules": [
             {
               "id": "EmailAddress",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0430\u0434\u0440\u0435\u0441\u043E\u043C \u044D\u043B\u0435\u043A\u0442\u0440\u043E\u043D\u043D\u043E\u0439 \u043F\u043E\u0447\u0442\u044B.",
+              "description": "Должно быть корректным адресом электронной почты.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
+              "description": "Не должно быть пустым.",
               "hasCondition": false
             }
           ]
@@ -137,11 +137,11 @@
         {
           "path": "Recipients[].Name",
           "clrType": "string",
-          "summary": "\u041D\u0435\u043E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E\u0435 \u043E\u0442\u043E\u0431\u0440\u0430\u0436\u0430\u0435\u043C\u043E\u0435 \u0438\u043C\u044F.",
+          "summary": "Необязательное отображаемое имя.",
           "rules": [
             {
               "id": "MaximumLength:100",
-              "description": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u0430\u044F \u0434\u043B\u0438\u043D\u0430: 100.",
+              "description": "Максимальная длина: 100.",
               "hasCondition": true
             }
           ]
@@ -149,23 +149,23 @@
         {
           "path": "Retry",
           "clrType": "RetryOptions",
-          "summary": "\u041F\u043E\u043B\u0438\u0442\u0438\u043A\u0430 \u043F\u043E\u0432\u0442\u043E\u0440\u043E\u0432 \u043F\u043E\u0441\u043B\u0435 \u043D\u0435\u0443\u0434\u0430\u0447\u043D\u043E\u0439 \u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438.",
+          "summary": "Политика повторов после неудачной отправки.",
           "rules": []
         },
         {
           "path": "Retry.DelayMilliseconds",
           "clrType": "int",
           "defaultValue": "200",
-          "summary": "\u041F\u0430\u0443\u0437\u0430 \u043C\u0435\u0436\u0434\u0443 \u043F\u043E\u043F\u044B\u0442\u043A\u0430\u043C\u0438 \u0432 \u043C\u0438\u043B\u043B\u0438\u0441\u0435\u043A\u0443\u043D\u0434\u0430\u0445.",
+          "summary": "Пауза между попытками в миллисекундах.",
           "rules": [
             {
               "id": "GreaterThan:0",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u0431\u043E\u043B\u044C\u0448\u0435 0.",
+              "description": "Должно быть больше 0.",
               "hasCondition": false
             },
             {
               "id": "LessThanOrEqual:60000",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043D\u0435 \u0431\u043E\u043B\u044C\u0448\u0435 60000.",
+              "description": "Должно быть не больше 60000.",
               "hasCondition": false
             }
           ]
@@ -174,11 +174,11 @@
           "path": "Retry.MaxAttempts",
           "clrType": "int",
           "defaultValue": "3",
-          "summary": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u043E\u0435 \u0447\u0438\u0441\u043B\u043E \u043F\u043E\u043F\u044B\u0442\u043E\u043A \u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438, \u0432\u043A\u043B\u044E\u0447\u0430\u044F \u043F\u0435\u0440\u0432\u0443\u044E.",
+          "summary": "Максимальное число попыток отправки, включая первую.",
           "rules": [
             {
               "id": "InclusiveBetween:1-10",
-              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 10 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
+              "description": "Значение должно быть от 1 до 10 включительно.",
               "hasCondition": false
             }
           ]
@@ -187,11 +187,11 @@
           "path": "TimeoutSeconds",
           "clrType": "int",
           "defaultValue": "30",
-          "summary": "\u0422\u0430\u0439\u043C\u0430\u0443\u0442 \u043E\u0442\u043F\u0440\u0430\u0432\u043A\u0438 \u0432 \u0441\u0435\u043A\u0443\u043D\u0434\u0430\u0445.",
+          "summary": "Таймаут отправки в секундах.",
           "rules": [
             {
               "id": "InclusiveBetween:1-300",
-              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 300 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
+              "description": "Значение должно быть от 1 до 300 включительно.",
               "hasCondition": false
             }
           ]
@@ -202,23 +202,23 @@
       "fullName": "DemoApp.Options.StorageOptions",
       "name": "StorageOptions",
       "configurationPath": "Storage",
-      "summary": "\u041D\u0430\u0441\u0442\u0440\u043E\u0439\u043A\u0438 \u0444\u0430\u0439\u043B\u043E\u0432\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430 \u0434\u0435\u043C\u043E-\u0430\u0440\u0442\u0435\u0444\u0430\u043A\u0442\u043E\u0432.",
+      "summary": "Настройки файлового хранилища демо-артефактов.",
       "properties": [
         {
           "path": "BucketName",
           "clrType": "string",
           "defaultValue": "null",
-          "summary": "\u0418\u043C\u044F \u0431\u0430\u043A\u0435\u0442\u0430 \u043E\u0431\u044A\u0435\u043A\u0442\u043D\u043E\u0433\u043E \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430. \u041E\u0431\u044F\u0437\u0430\u0442\u0435\u043B\u044C\u043D\u043E, \u0435\u0441\u043B\u0438 Provider \u0440\u0430\u0432\u0435\u043D S3.",
+          "summary": "Имя бакета объектного хранилища. Обязательно, если Provider равен S3.",
           "rules": [
             {
               "id": "Matches:^[a-z0-9.-]{3,63}$",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0441\u043E\u043E\u0442\u0432\u0435\u0442\u0441\u0442\u0432\u043E\u0432\u0430\u0442\u044C \u0448\u0430\u0431\u043B\u043E\u043D\u0443 \u0060^[a-z0-9.-]{3,63}$\u0060.",
-              "message": "BucketName \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u043A\u043E\u0440\u0440\u0435\u043A\u0442\u043D\u044B\u043C \u0438\u043C\u0435\u043D\u0435\u043C \u0431\u0430\u043A\u0435\u0442\u0430 S3.",
+              "description": "Должно соответствовать шаблону `^[a-z0-9.-]{3,63}$`.",
+              "message": "BucketName должен быть корректным именем бакета S3.",
               "hasCondition": true
             },
             {
               "id": "NotEmpty",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
+              "description": "Не должно быть пустым.",
               "hasCondition": true
             }
           ]
@@ -227,11 +227,11 @@
           "path": "MaxFileSizeBytes",
           "clrType": "long",
           "defaultValue": "1048576",
-          "summary": "\u041C\u0430\u043A\u0441\u0438\u043C\u0430\u043B\u044C\u043D\u044B\u0439 \u0440\u0430\u0437\u043C\u0435\u0440 \u0437\u0430\u0433\u0440\u0443\u0436\u0430\u0435\u043C\u043E\u0433\u043E \u0444\u0430\u0439\u043B\u0430 \u0432 \u0431\u0430\u0439\u0442\u0430\u0445.",
+          "summary": "Максимальный размер загружаемого файла в байтах.",
           "rules": [
             {
               "id": "InclusiveBetween:1-104857600",
-              "description": "\u0417\u043D\u0430\u0447\u0435\u043D\u0438\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043E\u0442 1 \u0434\u043E 104857600 \u0432\u043A\u043B\u044E\u0447\u0438\u0442\u0435\u043B\u044C\u043D\u043E.",
+              "description": "Значение должно быть от 1 до 104857600 включительно.",
               "hasCondition": false
             }
           ]
@@ -239,18 +239,18 @@
         {
           "path": "Provider",
           "clrType": "string",
-          "defaultValue": "\u0022Local\u0022",
-          "summary": "\u0418\u0434\u0435\u043D\u0442\u0438\u0444\u0438\u043A\u0430\u0442\u043E\u0440 \u0445\u0440\u0430\u043D\u0438\u043B\u0438\u0449\u0430. \u0414\u043E\u043F\u0443\u0441\u0442\u0438\u043C\u044B\u0435 \u0437\u043D\u0430\u0447\u0435\u043D\u0438\u044F: Local, S3.",
+          "defaultValue": "\"Local\"",
+          "summary": "Идентификатор хранилища. Допустимые значения: Local, S3.",
           "rules": [
             {
               "id": "Must",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0443\u0434\u043E\u0432\u043B\u0435\u0442\u0432\u043E\u0440\u044F\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u043C\u0443 \u0443\u0441\u043B\u043E\u0432\u0438\u044E.",
-              "message": "Provider \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C Local \u0438\u043B\u0438 S3.",
+              "description": "Должно удовлетворять пользовательскому условию.",
+              "message": "Provider должен быть Local или S3.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
+              "description": "Не должно быть пустым.",
               "hasCondition": false
             }
           ]
@@ -258,18 +258,18 @@
         {
           "path": "RootPath",
           "clrType": "string",
-          "defaultValue": "\u0022/var/demo/data\u0022",
-          "summary": "\u0410\u0431\u0441\u043E\u043B\u044E\u0442\u043D\u044B\u0439 \u043A\u0430\u0442\u0430\u043B\u043E\u0433, \u0435\u0441\u043B\u0438 Provider \u0440\u0430\u0432\u0435\u043D Local.",
+          "defaultValue": "\"/var/demo/data\"",
+          "summary": "Абсолютный каталог, если Provider равен Local.",
           "rules": [
             {
               "id": "Must",
-              "description": "\u0414\u043E\u043B\u0436\u043D\u043E \u0443\u0434\u043E\u0432\u043B\u0435\u0442\u0432\u043E\u0440\u044F\u0442\u044C \u043F\u043E\u043B\u044C\u0437\u043E\u0432\u0430\u0442\u0435\u043B\u044C\u0441\u043A\u043E\u043C\u0443 \u0443\u0441\u043B\u043E\u0432\u0438\u044E.",
-              "message": "RootPath \u0434\u043E\u043B\u0436\u0435\u043D \u0431\u044B\u0442\u044C \u0430\u0431\u0441\u043E\u043B\u044E\u0442\u043D\u044B\u043C Unix-\u043F\u0443\u0442\u0451\u043C.",
+              "description": "Должно удовлетворять пользовательскому условию.",
+              "message": "RootPath должен быть абсолютным Unix-путём.",
               "hasCondition": false
             },
             {
               "id": "NotEmpty",
-              "description": "\u041D\u0435 \u0434\u043E\u043B\u0436\u043D\u043E \u0431\u044B\u0442\u044C \u043F\u0443\u0441\u0442\u044B\u043C.",
+              "description": "Не должно быть пустым.",
               "hasCondition": false
             }
           ]
