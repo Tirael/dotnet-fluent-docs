@@ -3,50 +3,50 @@ namespace FluentDocs.Tests;
 public sealed class SnapshotSerializerTests
 {
     [Fact]
-    public void Serialize_keeps_cyrillic_readable()
+    public void Given_catalog_with_cyrillic_When_serialized_Then_json_keeps_readable_russian()
     {
-        // Дано
+        // Arrange
         var catalog = CatalogGeneratorTests.GenerateSampleCatalog();
 
-        // Когда
+        // Act
         var json = SnapshotSerializer.Serialize(catalog);
 
-        // Тогда
+        // Assert
         json.Should().Contain("SMTP-настройки для фикстуры генератора.");
         json.Should().Contain("Не должно быть пустым.");
         json.Should().NotContain("\\u041");
     }
 
     [Fact]
-    public void Deserialize_reads_readable_cyrillic_snapshot()
+    public void Given_serialized_cyrillic_json_When_deserialized_Then_summaries_are_preserved()
     {
-        // Дано
+        // Arrange
         var catalog = CatalogGeneratorTests.GenerateSampleCatalog();
         var json = SnapshotSerializer.Serialize(catalog);
 
-        // Когда
+        // Act
         var restored = SnapshotSerializer.Deserialize(json);
 
-        // Тогда
+        // Assert
         restored.Types.Should().ContainSingle(t => t.Name == "SampleMailOptions")
             .Subject.Summary.Should().Be("SMTP-настройки для фикстуры генератора.");
     }
 
     [Fact]
-    public void WriteToFile_stores_utf8_cyrillic_without_escapes()
+    public void Given_catalog_with_cyrillic_When_written_to_file_Then_utf8_bom_is_used_and_text_is_unescaped()
     {
-        // Дано
+        // Arrange
         var catalog = CatalogGeneratorTests.GenerateSampleCatalog();
         var path = Path.Combine(Path.GetTempPath(), $"fluentdocs-{Guid.NewGuid():N}.json");
 
         try
         {
-            // Когда
+            // Act
             SnapshotSerializer.WriteToFile(path, catalog);
             var bytes = File.ReadAllBytes(path);
             var text = System.Text.Encoding.UTF8.GetString(bytes);
 
-            // Тогда
+            // Assert
             bytes.Should().StartWith([0xEF, 0xBB, 0xBF]);
             text.Should().Contain("SMTP-настройки для фикстуры генератора.");
             text.Should().NotContain("\\u041");

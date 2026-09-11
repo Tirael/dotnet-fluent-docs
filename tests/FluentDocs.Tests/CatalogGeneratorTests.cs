@@ -5,16 +5,16 @@ namespace FluentDocs.Tests;
 public sealed class CatalogGeneratorTests
 {
     [Fact]
-    public void Generate_merges_xml_comments_and_fluent_validation_rules()
+    public void Given_sample_options_with_validators_When_catalog_is_generated_Then_xml_comments_and_rules_are_merged()
     {
-        // Дано
+        // Arrange
         var assembly = typeof(SampleMailOptions).Assembly;
         var xmlPath = Path.ChangeExtension(assembly.Location, ".xml");
 
-        // Когда
+        // Act
         var catalog = CatalogGenerator.Generate(assembly, xmlPath);
 
-        // Тогда
+        // Assert
         var mail = catalog.Types.Should().ContainSingle(t => t.Name == "SampleMailOptions").Subject;
         mail.ConfigurationPath.Should().Be("Mail");
         mail.Summary.Should().Be("SMTP-настройки для фикстуры генератора.");
@@ -42,16 +42,16 @@ public sealed class CatalogGeneratorTests
     }
 
     [Fact]
-    public void Generate_includes_attributed_storage_settings()
+    public void Given_settings_docs_attribute_When_catalog_is_generated_Then_storage_settings_are_included()
     {
-        // Дано
+        // Arrange
         var assembly = typeof(SampleStorageOptions).Assembly;
         var xmlPath = Path.ChangeExtension(assembly.Location, ".xml");
 
-        // Когда
+        // Act
         var catalog = CatalogGenerator.Generate(assembly, xmlPath);
 
-        // Тогда
+        // Assert
         var storage = catalog.Types.Should().ContainSingle(t => t.Name == "SampleStorageOptions").Subject;
         storage.ConfigurationPath.Should().Be("Storage");
 
@@ -64,16 +64,16 @@ public sealed class CatalogGeneratorTests
     }
 
     [Fact]
-    public void Generate_does_not_promote_nested_validators_to_top_level_types()
+    public void Given_nested_child_validators_When_catalog_is_generated_Then_they_are_not_promoted_to_top_level()
     {
-        // Дано
+        // Arrange
         var assembly = typeof(SampleMailOptions).Assembly;
         var xmlPath = Path.ChangeExtension(assembly.Location, ".xml");
 
-        // Когда
+        // Act
         var catalog = CatalogGenerator.Generate(assembly, xmlPath);
 
-        // Тогда
+        // Assert
         catalog.Types.Should().NotContain(t => t.Name == "SampleRetryOptions");
         catalog.Types.Should().NotContain(t => t.Name == "SampleRecipientOptions");
     }

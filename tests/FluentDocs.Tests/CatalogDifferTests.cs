@@ -1,13 +1,11 @@
-using FluentDocs.Tests.Fixtures;
-
 namespace FluentDocs.Tests;
 
 public sealed class CatalogDifferTests
 {
     [Fact]
-    public void Diff_reports_added_and_removed_properties_and_rule_id_changes()
+    public void Given_modified_previous_catalog_When_diff_is_computed_Then_added_removed_properties_and_rule_ids_are_reported()
     {
-        // Дано
+        // Arrange
         var current = CatalogGeneratorTests.GenerateSampleCatalog();
         var previous = SnapshotSerializer.Deserialize(SnapshotSerializer.Serialize(current));
         var mail = previous.Types.Single(t => t.Name == "SampleMailOptions");
@@ -27,10 +25,10 @@ public sealed class CatalogDifferTests
         });
         previous.Types.RemoveAll(t => t.Name == "SampleStorageOptions");
 
-        // Когда
+        // Act
         var diff = CatalogDiffer.Diff(previous, current);
 
-        // Тогда
+        // Assert
         diff.HasChanges.Should().BeTrue();
         diff.AddedTypes.Should().Contain(t => t.Name == "SampleStorageOptions");
 
@@ -46,29 +44,29 @@ public sealed class CatalogDifferTests
     }
 
     [Fact]
-    public void Diff_is_empty_when_catalogs_match()
+    public void Given_identical_catalogs_When_diff_is_computed_Then_there_are_no_changes()
     {
-        // Дано
+        // Arrange
         var catalog = CatalogGeneratorTests.GenerateSampleCatalog();
         var clone = SnapshotSerializer.Deserialize(SnapshotSerializer.Serialize(catalog));
 
-        // Когда
+        // Act
         var diff = CatalogDiffer.Diff(clone, catalog);
 
-        // Тогда
+        // Assert
         diff.HasChanges.Should().BeFalse();
     }
 
     [Fact]
-    public void Diff_null_previous_is_empty()
+    public void Given_null_previous_catalog_When_diff_is_computed_Then_there_are_no_changes()
     {
-        // Дано
+        // Arrange
         var catalog = CatalogGeneratorTests.GenerateSampleCatalog();
 
-        // Когда
+        // Act
         var diff = CatalogDiffer.Diff(null, catalog);
 
-        // Тогда
+        // Assert
         diff.HasChanges.Should().BeFalse();
     }
 }

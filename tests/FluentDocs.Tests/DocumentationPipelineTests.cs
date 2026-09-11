@@ -6,61 +6,78 @@ namespace FluentDocs.Tests;
 public sealed class DocumentationPipelineTests
 {
     [Fact]
-    public void Run_writes_markdown_and_snapshot_with_changelog()
+    public void Given_no_previous_snapshot_When_pipeline_runs_Then_initial_markdown_and_snapshot_are_written()
     {
-        // Дано
+        // Arrange
         var assembly = typeof(SampleMailOptions).Assembly;
         var xml = Path.ChangeExtension(assembly.Location, ".xml");
         using var directory = new TempDirectory();
-        var firstOutput = Path.Combine(directory.Path, "settings.md");
+        var output = Path.Combine(directory.Path, "settings.md");
         var snapshot = Path.Combine(directory.Path, "settings.snapshot.json");
 
-        // Когда
-        var first = DocumentationPipeline.Run(new DocumentationRequest
+        // Act
+        var result = DocumentationPipeline.Run(new DocumentationRequest
         {
             Assembly = assembly,
             AssemblyPath = assembly.Location,
             XmlDocumentationPath = xml,
-            OutputPath = firstOutput,
+            OutputPath = output,
             SnapshotPath = snapshot
         });
 
-        // Тогда
-        first.IsInitial.Should().BeTrue();
-        first.Markdown.Should().Contain("Каталог сформирован впервые.");
-        File.Exists(firstOutput).Should().BeTrue();
+        // Assert
+        result.IsInitial.Should().BeTrue();
+        result.Markdown.Should().Contain("Каталог сформирован впервые.");
+        File.Exists(output).Should().BeTrue();
         File.Exists(snapshot).Should().BeTrue();
+    }
 
-        // Дано
-        var previous = SnapshotSerializer.Deserialize(File.ReadAllText(snapshot));
+    [Fact]
+    public void Given_snapshot_with_old_rule_When_pipeline_runs_Then_changelog_reports_constraint_change()
+    {
+        // Arrange
+        var assembly = typeof(SampleMailOptions).Assembly;
+        var xml = Path.ChangeExtension(assembly.Location, ".xml");
+        using var directory = new TempDirectory();
+        var output = Path.Combine(directory.Path, "settings.md");
+        var snapshot = Path.Combine(directory.Path, "settings.snapshot.json");
+        DocumentationPipeline.Run(new DocumentationRequest
+        {
+            Assembly = assembly,
+            AssemblyPath = assembly.Location,
+            XmlDocumentationPath = xml,
+            OutputPath = output,
+            SnapshotPath = snapshot
+        });
+        var previous = SnapshotSerializer.ReadFromFile(snapshot);
         var host = previous.Types.Single(t => t.Name == "SampleMailOptions").Properties.Single(p => p.Path == "Host");
         host.Rules.RemoveAll(r => r.Id == "MaximumLength:255");
         host.Rules.Add(new SettingsRuleDocument { Id = "MaximumLength:128", Description = "Максимальная длина: 128." });
-        File.WriteAllText(snapshot, SnapshotSerializer.Serialize(previous));
+        SnapshotSerializer.WriteToFile(snapshot, previous);
 
-        // Когда
-        var second = DocumentationPipeline.Run(new DocumentationRequest
+        // Act
+        var result = DocumentationPipeline.Run(new DocumentationRequest
         {
             Assembly = assembly,
             AssemblyPath = assembly.Location,
             XmlDocumentationPath = xml,
-            OutputPath = firstOutput,
+            OutputPath = output,
             SnapshotPath = snapshot
         });
 
-        // Тогда
-        second.IsInitial.Should().BeFalse();
-        second.Markdown.Should().Contain("Добавлено ограничение `MaximumLength:255`");
-        second.Markdown.Should().Contain("Удалено ограничение `MaximumLength:128`");
+        // Assert
+        result.IsInitial.Should().BeFalse();
+        result.Markdown.Should().Contain("Добавлено ограничение `MaximumLength:255`");
+        result.Markdown.Should().Contain("Удалено ограничение `MaximumLength:128`");
     }
 }
 
 public sealed class DemoAppBuildTests
 {
     [Fact]
-    public void Building_demo_app_generates_settings_documentation()
+    public void Given_demo_app_When_project_is_built_Then_russian_settings_documentation_is_generated()
     {
-        // Дано
+        // Arrange
         var repo = FindRepoRoot();
         var demo = Path.Combine(repo, "samples", "DemoApp");
         var start = new ProcessStartInfo("dotnet", "build --nologo -v:m")
@@ -71,14 +88,14 @@ public sealed class DemoAppBuildTests
             UseShellExecute = false
         };
 
-        // Когда
+        // Act
         using var process = Process.Start(start);
         process.Should().NotBeNull();
         var stdout = process!.StandardOutput.ReadToEnd();
         var stderr = process.StandardError.ReadToEnd();
         process.WaitForExit();
 
-        // Тогда
+        // Assert
         process.ExitCode.Should().Be(0, $"сборка завершилась с ошибкой.\n{stdout}\n{stderr}");
 
         var markdownPath = Path.Combine(demo, "docs", "settings.md");
