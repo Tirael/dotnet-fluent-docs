@@ -1,0 +1,281 @@
+﻿{
+  "version": "1",
+  "types": [
+    {
+      "fullName": "DemoApp.Options.MailOptions",
+      "name": "MailOptions",
+      "configurationPath": "Mail",
+      "summary": "Настройки SMTP-отправки почты.",
+      "remarks": "Привязываются к секции конфигурации Mail.",
+      "properties": [
+        {
+          "path": "AllowedSenderPatterns",
+          "clrType": "List<string>",
+          "defaultValue": "[]",
+          "summary": "Регулярные выражения, которым должны соответствовать адреса отправителя.",
+          "rules": []
+        },
+        {
+          "path": "AllowedSenderPatterns[]",
+          "clrType": "string[]",
+          "defaultValue": "[]",
+          "summary": "Регулярные выражения, которым должны соответствовать адреса отправителя.",
+          "rules": [
+            {
+              "id": "Matches:^.*$",
+              "description": "Должно соответствовать шаблону `^.*$`.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Не должно быть пустым.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "EnableTls",
+          "clrType": "bool",
+          "defaultValue": "true",
+          "summary": "Если true, после подключения клиент поднимает TLS.",
+          "rules": []
+        },
+        {
+          "path": "From",
+          "clrType": "string",
+          "defaultValue": "\"noreply@localhost\"",
+          "summary": "Адрес отправителя исходящей почты.",
+          "rules": [
+            {
+              "id": "EmailAddress",
+              "description": "Должно быть корректным адресом электронной почты.",
+              "message": "From должен быть корректным адресом электронной почты.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Не должно быть пустым.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Host",
+          "clrType": "string",
+          "defaultValue": "\"localhost\"",
+          "summary": "Имя или адрес SMTP-хоста.",
+          "rules": [
+            {
+              "id": "MaximumLength:255",
+              "description": "Максимальная длина: 255.",
+              "message": "SMTP-хост обязателен и не длиннее 255 символов.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Не должно быть пустым.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Port",
+          "clrType": "int",
+          "defaultValue": "25",
+          "summary": "TCP-порт SMTP.",
+          "rules": [
+            {
+              "id": "GreaterThanOrEqual:465",
+              "description": "Должно быть не меньше 465.",
+              "message": "Для TLS обычно используют порт 465 или 587.",
+              "hasCondition": true
+            },
+            {
+              "id": "InclusiveBetween:1-65535",
+              "description": "Значение должно быть от 1 до 65535 включительно.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Recipients",
+          "clrType": "List<RecipientOptions>",
+          "defaultValue": "[]",
+          "summary": "Получатели, которые всегда получают копию системных уведомлений.",
+          "rules": [
+            {
+              "id": "NotNull",
+              "description": "Не должно быть null.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Recipients[]",
+          "clrType": "RecipientOptions[]",
+          "defaultValue": "[]",
+          "summary": "Получатели, которые всегда получают копию системных уведомлений.",
+          "rules": []
+        },
+        {
+          "path": "Recipients[].Email",
+          "clrType": "string",
+          "summary": "Адрес электронной почты получателя.",
+          "rules": [
+            {
+              "id": "EmailAddress",
+              "description": "Должно быть корректным адресом электронной почты.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Не должно быть пустым.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Recipients[].Name",
+          "clrType": "string",
+          "summary": "Необязательное отображаемое имя.",
+          "rules": [
+            {
+              "id": "MaximumLength:100",
+              "description": "Максимальная длина: 100.",
+              "hasCondition": true
+            }
+          ]
+        },
+        {
+          "path": "Retry",
+          "clrType": "RetryOptions",
+          "summary": "Политика повторов после неудачной отправки.",
+          "rules": []
+        },
+        {
+          "path": "Retry.DelayMilliseconds",
+          "clrType": "int",
+          "defaultValue": "200",
+          "summary": "Пауза между попытками в миллисекундах.",
+          "rules": [
+            {
+              "id": "GreaterThan:0",
+              "description": "Должно быть больше 0.",
+              "hasCondition": false
+            },
+            {
+              "id": "LessThanOrEqual:60000",
+              "description": "Должно быть не больше 60000.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Retry.MaxAttempts",
+          "clrType": "int",
+          "defaultValue": "3",
+          "summary": "Максимальное число попыток отправки, включая первую.",
+          "rules": [
+            {
+              "id": "InclusiveBetween:1-10",
+              "description": "Значение должно быть от 1 до 10 включительно.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "TimeoutSeconds",
+          "clrType": "int",
+          "defaultValue": "30",
+          "summary": "Таймаут отправки в секундах.",
+          "rules": [
+            {
+              "id": "InclusiveBetween:1-300",
+              "description": "Значение должно быть от 1 до 300 включительно.",
+              "hasCondition": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "fullName": "DemoApp.Options.StorageOptions",
+      "name": "StorageOptions",
+      "configurationPath": "Storage",
+      "summary": "Настройки файлового хранилища демо-артефактов.",
+      "properties": [
+        {
+          "path": "BucketName",
+          "clrType": "string",
+          "defaultValue": "null",
+          "summary": "Имя бакета объектного хранилища. Обязательно, если Provider равен S3.",
+          "rules": [
+            {
+              "id": "Matches:^[a-z0-9.-]{3,63}$",
+              "description": "Должно соответствовать шаблону `^[a-z0-9.-]{3,63}$`.",
+              "message": "BucketName должен быть корректным именем бакета S3.",
+              "hasCondition": true
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Не должно быть пустым.",
+              "hasCondition": true
+            }
+          ]
+        },
+        {
+          "path": "MaxFileSizeBytes",
+          "clrType": "long",
+          "defaultValue": "1048576",
+          "summary": "Максимальный размер загружаемого файла в байтах.",
+          "rules": [
+            {
+              "id": "InclusiveBetween:1-104857600",
+              "description": "Значение должно быть от 1 до 104857600 включительно.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "Provider",
+          "clrType": "string",
+          "defaultValue": "\"Local\"",
+          "summary": "Идентификатор хранилища. Допустимые значения: Local, S3.",
+          "rules": [
+            {
+              "id": "Must",
+              "description": "Должно удовлетворять пользовательскому условию.",
+              "message": "Provider должен быть Local или S3.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Не должно быть пустым.",
+              "hasCondition": false
+            }
+          ]
+        },
+        {
+          "path": "RootPath",
+          "clrType": "string",
+          "defaultValue": "\"/var/demo/data\"",
+          "summary": "Абсолютный каталог, если Provider равен Local.",
+          "rules": [
+            {
+              "id": "Must",
+              "description": "Должно удовлетворять пользовательскому условию.",
+              "message": "RootPath должен быть абсолютным Unix-путём.",
+              "hasCondition": false
+            },
+            {
+              "id": "NotEmpty",
+              "description": "Не должно быть пустым.",
+              "hasCondition": false
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "warnings": []
+}

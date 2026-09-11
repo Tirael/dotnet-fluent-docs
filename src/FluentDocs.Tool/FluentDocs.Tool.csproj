@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <RootNamespace>FluentDocs.Tool</RootNamespace>
+    <AssemblyName>FluentDocs.Tool</AssemblyName>
+    <Description>CLI, который формирует документацию настроек по собранной сборке.</Description>
+    <IsPackable>false</IsPackable>
+    <RollForward>LatestMajor</RollForward>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FluentDocs\FluentDocs.csproj" />
+  </ItemGroup>
+</Project>

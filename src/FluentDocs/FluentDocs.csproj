@@ -1,0 +1,9 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>FluentDocs</RootNamespace>
+    <PackageId>FluentDocs</PackageId>
+    <Description>Анализирует валидаторы FluentValidation и XML-комментарии и формирует каталог настроек с журналом изменений.</Description>
+    <IsPackable>true</IsPackable>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>

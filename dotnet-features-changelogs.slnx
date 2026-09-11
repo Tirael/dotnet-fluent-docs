@@ -1,0 +1,14 @@
+<Solution>
+  <Folder Name="/samples/">
+    <Project Path="samples/DemoApp/DemoApp.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/FluentDocs.Abstractions/FluentDocs.Abstractions.csproj" />
+    <Project Path="src/FluentDocs.Build/FluentDocs.Build.csproj" />
+    <Project Path="src/FluentDocs.Tool/FluentDocs.Tool.csproj" />
+    <Project Path="src/FluentDocs/FluentDocs.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/FluentDocs.Tests/FluentDocs.Tests.csproj" />
+  </Folder>
+</Solution>

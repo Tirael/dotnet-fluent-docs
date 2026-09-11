@@ -1,0 +1,29 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <PackageId>FluentDocs.Build</PackageId>
+    <Description>Интеграция MSBuild: запускает FluentDocs после компиляции приложения.</Description>
+    <IsPackable>true</IsPackable>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="build\*" Pack="true" PackagePath="build\" />
+    <None Include="buildTransitive\*" Pack="true" PackagePath="buildTransitive\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\FluentDocs.Tool\FluentDocs.Tool.csproj" ReferenceOutputAssembly="false" />
+  </ItemGroup>
+  <Target Name="IncludeToolInPackage" BeforeTargets="_GetPackageFiles">
+    <PropertyGroup>
+      <_FluentDocsToolOut>$(MSBuildThisFileDirectory)..\FluentDocs.Tool\bin\$(Configuration)\net10.0</_FluentDocsToolOut>
+    </PropertyGroup>
+    <ItemGroup Condition="Exists('$(_FluentDocsToolOut)\FluentDocs.Tool.dll')">
+      <None Include="$(_FluentDocsToolOut)\**\*.*" Pack="true" PackagePath="tools\net10.0\" />
+    </ItemGroup>
+  </Target>
+</Project>
