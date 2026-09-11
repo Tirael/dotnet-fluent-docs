@@ -67,8 +67,22 @@ internal static class TypeSymbolFormatter
 
         foreach (var candidate in type.AllInterfaces.Concat([type]))
         {
-            if (candidate is INamedTypeSymbol { Name: "IEnumerable", Arity: 1 } enumerable)
+            if (candidate is INamedTypeSymbol enumerable
+                && enumerable.OriginalDefinition.SpecialType == SpecialType.System_Collections_Generic_IEnumerable_T
+                && enumerable.TypeArguments.Length == 1)
+            {
                 return enumerable.TypeArguments[0];
+            }
+
+            if (candidate is INamedTypeSymbol { Name: "IEnumerable", Arity: 1 } generic)
+                return generic.TypeArguments[0];
+        }
+
+        if (type is INamedTypeSymbol { Arity: 1 } named
+            && named.Name is "List" or "IList" or "ICollection" or "IEnumerable"
+                or "IReadOnlyList" or "IReadOnlyCollection")
+        {
+            return named.TypeArguments[0];
         }
 
         return null;

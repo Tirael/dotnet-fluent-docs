@@ -60,6 +60,8 @@ public static class CatalogGenerator
         {
             if (type.TypeKind != TypeKind.Class || type.IsAbstract)
                 continue;
+            if (type.DeclaringSyntaxReferences.Length == 0)
+                continue;
 
             var modelType = ValidatorRuleExtractor.GetValidatedType(type);
             if (modelType is null)
@@ -267,7 +269,8 @@ public static class CatalogGenerator
             if (constant.HasValue)
                 return ValueFormatter.FormatConstant(constant.Value);
 
-            if (IsEmptyCollectionExpression(expression) && TypeSymbolFormatter.IsCollection(property.Type))
+            // `= []` в исходнике — пустая коллекция, даже если тип ещё не резолвится.
+            if (IsEmptyCollectionExpression(expression))
                 return "[]";
 
             if (expression is ObjectCreationExpressionSyntax or ImplicitObjectCreationExpressionSyntax)
