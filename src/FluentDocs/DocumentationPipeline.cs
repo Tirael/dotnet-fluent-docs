@@ -57,7 +57,7 @@ public static class DocumentationPipeline
         var previousPath = ResolvePreviousSnapshotPath(request);
         SettingsCatalog? previous = null;
         if (previousPath is not null && File.Exists(previousPath))
-            previous = SnapshotSerializer.Deserialize(File.ReadAllText(previousPath));
+            previous = SnapshotSerializer.ReadFromFile(previousPath);
 
         var isInitial = previous is null;
         var diff = CatalogDiffer.Diff(previous, catalog);
@@ -65,7 +65,7 @@ public static class DocumentationPipeline
 
         WriteAll(request.OutputPath, markdown);
         if (!string.IsNullOrWhiteSpace(request.SnapshotPath))
-            WriteAll(request.SnapshotPath, SnapshotSerializer.Serialize(catalog));
+            SnapshotSerializer.WriteToFile(request.SnapshotPath, catalog);
 
         log.WriteLine($"FluentDocs: записан {request.OutputPath}");
         if (!string.IsNullOrWhiteSpace(request.SnapshotPath))
@@ -87,7 +87,7 @@ public static class DocumentationPipeline
         var directory = Path.GetDirectoryName(fullPath);
         if (!string.IsNullOrEmpty(directory))
             Directory.CreateDirectory(directory);
-        File.WriteAllText(fullPath, contents);
+        File.WriteAllText(fullPath, contents, SnapshotSerializer.Utf8Bom);
     }
 }
 

@@ -86,6 +86,11 @@ public sealed class DemoAppBuildTests
         File.Exists(markdownPath).Should().BeTrue(stdout);
         File.Exists(snapshotPath).Should().BeTrue(stdout);
 
+        var snapshotText = File.ReadAllText(snapshotPath, System.Text.Encoding.UTF8);
+        snapshotText.Should().Contain("Настройки SMTP-отправки почты.");
+        snapshotText.Should().Contain("Не должно быть пустым.");
+        snapshotText.Should().NotContain("\\u041");
+
         var markdown = File.ReadAllText(markdownPath);
         markdown.Should().Contain("MailOptions");
         markdown.Should().Contain("StorageOptions");

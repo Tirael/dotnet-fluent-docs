@@ -31,4 +31,29 @@ public sealed class SnapshotSerializerTests
         restored.Types.Should().ContainSingle(t => t.Name == "SampleMailOptions")
             .Subject.Summary.Should().Be("SMTP-настройки для фикстуры генератора.");
     }
+
+    [Fact]
+    public void WriteToFile_stores_utf8_cyrillic_without_escapes()
+    {
+        // Дано
+        var catalog = CatalogGeneratorTests.GenerateSampleCatalog();
+        var path = Path.Combine(Path.GetTempPath(), $"fluentdocs-{Guid.NewGuid():N}.json");
+
+        try
+        {
+            // Когда
+            SnapshotSerializer.WriteToFile(path, catalog);
+            var bytes = File.ReadAllBytes(path);
+            var text = System.Text.Encoding.UTF8.GetString(bytes);
+
+            // Тогда
+            bytes.Should().StartWith([0xEF, 0xBB, 0xBF]);
+            text.Should().Contain("SMTP-настройки для фикстуры генератора.");
+            text.Should().NotContain("\\u041");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
 }
