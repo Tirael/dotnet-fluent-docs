@@ -16,7 +16,7 @@ public sealed class SettingsCatalog
     public List<SettingsTypeDocument> Types { get; set; } = [];
 
     /// <summary>
-    /// Нефатальные проблемы, возникшие при разборе валидаторов.
+    /// Нефатальные проблемы, возникшие при разборе исходников валидаторов.
     /// </summary>
     public List<string> Warnings { get; set; } = [];
 }
@@ -73,7 +73,7 @@ public sealed class SettingsPropertyDocument
     public string ClrType { get; set; } = string.Empty;
 
     /// <summary>
-    /// Отформатированное значение по умолчанию, если его удалось прочитать через конструктор без параметров.
+    /// Отформатированное значение по умолчанию из инициализатора свойства.
     /// </summary>
     public string? DefaultValue { get; set; }
 

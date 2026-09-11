@@ -3,7 +3,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>FluentDocs.Tool</RootNamespace>
     <AssemblyName>FluentDocs.Tool</AssemblyName>
-    <Description>CLI, который формирует документацию настроек по собранной сборке.</Description>
+    <Description>CLI, который формирует документацию настроек по исходникам валидаторов через Roslyn.</Description>
     <IsPackable>false</IsPackable>
     <RollForward>LatestMajor</RollForward>
   </PropertyGroup>

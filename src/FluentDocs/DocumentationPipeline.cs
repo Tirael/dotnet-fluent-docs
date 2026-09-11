@@ -1,3 +1,5 @@
+using Microsoft.CodeAnalysis;
+
 namespace FluentDocs;
 
 /// <summary>
@@ -6,14 +8,19 @@ namespace FluentDocs;
 public sealed class DocumentationRequest
 {
     /// <summary>
-    /// Путь к собранной сборке приложения. Обязателен, если не задано <see cref="Assembly"/>.
+    /// Исходные файлы C#, которые нужно разобрать через Roslyn.
     /// </summary>
-    public string AssemblyPath { get; init; } = string.Empty;
+    public IReadOnlyList<string> SourceFiles { get; init; } = [];
 
     /// <summary>
-    /// Уже загруженная сборка. Если задана, изолированная загрузка не выполняется.
+    /// Ссылки на сборки, необходимые для семантической модели.
     /// </summary>
-    public System.Reflection.Assembly? Assembly { get; init; }
+    public IReadOnlyList<string> References { get; init; } = [];
+
+    /// <summary>
+    /// Уже собранная компиляция. Если задана, списки файлов не используются.
+    /// </summary>
+    public Compilation? Compilation { get; init; }
 
     /// <summary>
     /// Необязательный XML-файл документации компилятора.
@@ -47,13 +54,13 @@ public static class DocumentationPipeline
     public static DocumentationResult Run(DocumentationRequest request, TextWriter? log = null)
     {
         ArgumentNullException.ThrowIfNull(request);
-        if (request.Assembly is null && string.IsNullOrWhiteSpace(request.AssemblyPath))
-            throw new ArgumentException("Нужно указать Assembly или AssemblyPath.", nameof(request));
+        if (request.Compilation is null && request.SourceFiles.Count == 0)
+            throw new ArgumentException("Нужно указать Compilation или SourceFiles.", nameof(request));
         log ??= TextWriter.Null;
 
-        var catalog = request.Assembly is not null
-            ? CatalogGenerator.Generate(request.Assembly, request.XmlDocumentationPath)
-            : CatalogGenerator.GenerateFromPath(request.AssemblyPath, request.XmlDocumentationPath);
+        var catalog = request.Compilation is not null
+            ? CatalogGenerator.Generate(request.Compilation, request.XmlDocumentationPath)
+            : CatalogGenerator.GenerateFromFiles(request.SourceFiles, request.References, request.XmlDocumentationPath);
         var previousPath = ResolvePreviousSnapshotPath(request);
         SettingsCatalog? previous = null;
         if (previousPath is not null && File.Exists(previousPath))

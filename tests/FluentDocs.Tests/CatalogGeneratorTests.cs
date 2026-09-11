@@ -1,5 +1,3 @@
-using FluentDocs.Tests.Fixtures;
-
 namespace FluentDocs.Tests;
 
 public sealed class CatalogGeneratorTests
@@ -8,11 +6,8 @@ public sealed class CatalogGeneratorTests
     public void Given_sample_options_with_validators_When_catalog_is_generated_Then_xml_comments_and_rules_are_merged()
     {
         // Arrange
-        var assembly = typeof(SampleMailOptions).Assembly;
-        var xmlPath = Path.ChangeExtension(assembly.Location, ".xml");
-
         // Act
-        var catalog = CatalogGenerator.Generate(assembly, xmlPath);
+        var catalog = GenerateSampleCatalog();
 
         // Assert
         var mail = catalog.Types.Should().ContainSingle(t => t.Name == "SampleMailOptions").Subject;
@@ -45,11 +40,8 @@ public sealed class CatalogGeneratorTests
     public void Given_settings_docs_attribute_When_catalog_is_generated_Then_storage_settings_are_included()
     {
         // Arrange
-        var assembly = typeof(SampleStorageOptions).Assembly;
-        var xmlPath = Path.ChangeExtension(assembly.Location, ".xml");
-
         // Act
-        var catalog = CatalogGenerator.Generate(assembly, xmlPath);
+        var catalog = GenerateSampleCatalog();
 
         // Assert
         var storage = catalog.Types.Should().ContainSingle(t => t.Name == "SampleStorageOptions").Subject;
@@ -67,21 +59,32 @@ public sealed class CatalogGeneratorTests
     public void Given_nested_child_validators_When_catalog_is_generated_Then_they_are_not_promoted_to_top_level()
     {
         // Arrange
-        var assembly = typeof(SampleMailOptions).Assembly;
-        var xmlPath = Path.ChangeExtension(assembly.Location, ".xml");
-
         // Act
-        var catalog = CatalogGenerator.Generate(assembly, xmlPath);
+        var catalog = GenerateSampleCatalog();
 
         // Assert
         catalog.Types.Should().NotContain(t => t.Name == "SampleRetryOptions");
         catalog.Types.Should().NotContain(t => t.Name == "SampleRecipientOptions");
     }
 
-    internal static SettingsCatalog GenerateSampleCatalog()
+    [Fact]
+    public void Given_validator_with_constructor_dependency_When_catalog_is_generated_Then_rules_are_read_from_source()
     {
-        var assembly = typeof(SampleMailOptions).Assembly;
-        var xmlPath = Path.ChangeExtension(assembly.Location, ".xml");
-        return CatalogGenerator.Generate(assembly, xmlPath);
+        // Arrange
+        // Act
+        var catalog = TestCompilations.GenerateFromSources(
+            "tests/FluentDocs.Tests/Fixtures/DiOptions.cs");
+
+        // Assert
+        var di = catalog.Types.Should().ContainSingle(t => t.Name == "SampleDiOptions").Subject;
+        di.ConfigurationPath.Should().Be("Di");
+        var name = di.Properties.Should().ContainSingle(p => p.Path == "ProfileName").Subject;
+        name.DefaultValue.Should().Be("\"default\"");
+        name.Rules.Should().Contain(r => r.Id == "NotEmpty");
+        name.Rules.Should().Contain(r => r.Id == "MaximumLength:32");
+        catalog.Warnings.Should().NotContain(w => w.Contains("конструктор без параметров", StringComparison.Ordinal));
     }
+
+    internal static SettingsCatalog GenerateSampleCatalog()
+        => TestCompilations.GenerateSampleCatalog();
 }
