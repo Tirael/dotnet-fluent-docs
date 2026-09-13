@@ -179,21 +179,50 @@ internal sealed class ValidatorRuleExtractor
                     if (lastRule is not null)
                         lastRule.HasCondition = true;
                     continue;
-                case "SetValidator" or "SetInheritanceValidator":
+                case "SetValidator" or "SetAsyncValidator" or "SetInheritanceValidator":
                     {
-                        if (ResolveValidatorType(call, model) is { } childValidator)
+                        var childPrefix = string.IsNullOrWhiteSpace(path) ? prefix : path;
+                        var childModel = collectionRule
+                            ? TypeSymbolFormatter.GetCollectionElementType(property?.Type ?? currentModel) ?? currentModel
+                            : property?.Type ?? currentModel;
+                        childModel = TypeSymbolFormatter.UnwrapNullable(childModel);
+
+                        if (name == "SetInheritanceValidator")
                         {
-                            var childModel = collectionRule
-                                ? TypeSymbolFormatter.GetCollectionElementType(property?.Type ?? currentModel) ?? currentModel
-                                : property?.Type ?? currentModel;
-                            var childPrefix = string.IsNullOrWhiteSpace(path) ? prefix : path;
-                            Extract(childValidator, childPrefix, TypeSymbolFormatter.UnwrapNullable(childModel), document, [.. chain], ruleCondition, ruleSet);
+                            WalkInheritanceConfiguration(call, childPrefix, childModel, document, chain, ruleCondition, ruleSet, visitedMethods, model);
+                        }
+                        else if (ResolveValidatorType(call, model) is { } childValidator)
+                        {
+                            if (GetValidatedType(childValidator) is not null)
+                            {
+                                Extract(childValidator, childPrefix, childModel, document, [.. chain], ruleCondition, ruleSet);
+                            }
+                            else
+                            {
+                                AddRule(ref target, path, member, property, currentModel, collectionRule, document,
+                                    RuleHumanizer.PropertyValidator(childValidator.Name, ruleCondition, ruleSet));
+                                lastRule = target?.Rules.LastOrDefault();
+                                continue;
+                            }
                         }
                         else
                         {
                             _warnings.Add($"Не удалось найти вложенный валидатор в '{GetLocation(call)}'.");
                         }
 
+                        lastRule = null;
+                        continue;
+                    }
+                case "ForEach":
+                    {
+                        var elementPrefix = string.IsNullOrWhiteSpace(path)
+                            ? prefix
+                            : path.EndsWith("[]", StringComparison.Ordinal) ? path : $"{path}[]";
+                        var elementType = TypeSymbolFormatter.GetCollectionElementType(property?.Type ?? currentModel) ?? currentModel;
+                        if (!string.IsNullOrWhiteSpace(elementPrefix) && property is not null)
+                            CatalogGenerator.EnsureProperty(document, elementPrefix, property, elementType, collectionRule: true, _xml, _compilation);
+                        foreach (var lambda in GetLambdas(call))
+                            WalkBareRuleBuilder(lambda, elementPrefix, elementType, document, chain, ruleCondition, ruleSet, visitedMethods, model);
                         lastRule = null;
                         continue;
                     }
@@ -214,31 +243,146 @@ internal sealed class ValidatorRuleExtractor
                     continue;
             }
 
-            if (string.IsNullOrWhiteSpace(path))
-                continue;
-
-            target ??= document.Properties.FirstOrDefault(p => p.Path == path);
-            if (target is null)
-            {
-                target = new SettingsPropertyDocument
-                {
-                    Path = path,
-                    ClrType = collectionRule && TypeSymbolFormatter.GetCollectionElementType(property?.Type ?? currentModel) is { } element
-                        ? $"{TypeSymbolFormatter.Format(element)}[]"
-                        : TypeSymbolFormatter.Format(member.MemberType ?? property?.Type)
-                };
-                document.Properties.Add(target);
-            }
-
             var args = EvaluateArguments(call, model, name);
             var humanized = RuleHumanizer.Humanize(name, args, message: null, ruleCondition, ruleSet);
             if (humanized is null)
                 continue;
 
-            if (target.Rules.All(r => r.Id != humanized.Id))
-                target.Rules.Add(humanized);
-            lastRule = target.Rules.First(r => r.Id == humanized.Id);
+            AddRule(ref target, path, member, property, currentModel, collectionRule, document, humanized);
+            lastRule = target?.Rules.First(r => r.Id == humanized.Id);
         }
+    }
+
+    private void WalkBareRuleBuilder(
+        LambdaExpressionSyntax lambda,
+        string path,
+        ITypeSymbol modelType,
+        SettingsTypeDocument document,
+        HashSet<string> chain,
+        bool hasCondition,
+        string? ruleSet,
+        HashSet<string> visitedMethods,
+        SemanticModel model)
+    {
+        switch (lambda.Body)
+        {
+            case BlockSyntax block:
+                foreach (var statement in block.Statements)
+                {
+                    if (statement is ExpressionStatementSyntax { Expression: InvocationExpressionSyntax invocation })
+                        ProcessBareChain(invocation, path, modelType, document, chain, hasCondition, ruleSet, visitedMethods, model);
+                }
+
+                break;
+            case InvocationExpressionSyntax invocation:
+                ProcessBareChain(invocation, path, modelType, document, chain, hasCondition, ruleSet, visitedMethods, model);
+                break;
+        }
+    }
+
+    private void ProcessBareChain(
+        InvocationExpressionSyntax invocation,
+        string path,
+        ITypeSymbol modelType,
+        SettingsTypeDocument document,
+        HashSet<string> chain,
+        bool hasCondition,
+        string? ruleSet,
+        HashSet<string> visitedMethods,
+        SemanticModel model)
+    {
+        var calls = Flatten(invocation);
+        if (calls.Count == 0)
+            return;
+
+        // ForEach(tag => tag.NotEmpty().MaximumLength(16)) — цепочка без RuleFor.
+        SettingsPropertyDocument? target = string.IsNullOrWhiteSpace(path) ? null : document.Properties.FirstOrDefault(p => p.Path == path);
+        SettingsRuleDocument? lastRule = null;
+        var ruleCondition = hasCondition;
+        var binding = new MemberBinding(path, modelType, null, modelType);
+
+        foreach (var call in calls)
+        {
+            var name = GetInvokedName(call);
+            switch (name)
+            {
+                case "WithMessage":
+                    if (lastRule is not null)
+                        lastRule.Message = EvaluateArgument(call, 0, model) ?? lastRule.Message;
+                    continue;
+                case "When" or "Unless" or "WhenAsync" or "UnlessAsync":
+                    ruleCondition = true;
+                    if (lastRule is not null)
+                        lastRule.HasCondition = true;
+                    continue;
+                case var ignored when RuleHumanizer.IsIgnored(ignored):
+                    continue;
+            }
+
+            var humanized = RuleHumanizer.Humanize(name, EvaluateArguments(call, model, name), message: null, ruleCondition, ruleSet);
+            if (humanized is null)
+                continue;
+
+            AddRule(ref target, path, binding, property: null, modelType, collectionRule: path.EndsWith("[]", StringComparison.Ordinal), document, humanized);
+            lastRule = target?.Rules.First(r => r.Id == humanized.Id);
+        }
+    }
+
+    private void WalkInheritanceConfiguration(
+        InvocationExpressionSyntax invocation,
+        string prefix,
+        ITypeSymbol modelType,
+        SettingsTypeDocument document,
+        HashSet<string> chain,
+        bool hasCondition,
+        string? ruleSet,
+        HashSet<string> visitedMethods,
+        SemanticModel model)
+    {
+        foreach (var lambda in GetLambdas(invocation))
+        {
+            foreach (var add in lambda.DescendantNodes().OfType<InvocationExpressionSyntax>())
+            {
+                if (GetInvokedName(add) is not ("Add" or "AddAsync"))
+                    continue;
+
+                if (ResolveValidatorType(add, model) is { } child && GetValidatedType(child) is { } derived)
+                    Extract(child, prefix, derived, document, [.. chain], hasCondition, ruleSet);
+                else
+                    _warnings.Add($"Не удалось разобрать полиморфный валидатор в '{GetLocation(add)}'.");
+            }
+        }
+
+    }
+
+    private static void AddRule(
+        ref SettingsPropertyDocument? target,
+        string path,
+        MemberBinding member,
+        IPropertySymbol? property,
+        ITypeSymbol currentModel,
+        bool collectionRule,
+        SettingsTypeDocument document,
+        SettingsRuleDocument humanized)
+    {
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        target ??= document.Properties.FirstOrDefault(p => p.Path == path);
+        if (target is null)
+        {
+            target = new SettingsPropertyDocument
+            {
+                Path = path,
+                ClrType = collectionRule && TypeSymbolFormatter.GetCollectionElementType(property?.Type ?? currentModel) is { } element
+                    ? $"{TypeSymbolFormatter.Format(element)}[]"
+                    : TypeSymbolFormatter.Format(member.MemberType ?? property?.Type ?? currentModel)
+            };
+            document.Properties.Add(target);
+        }
+
+        if (target.Rules.All(r => r.Id != humanized.Id))
+            target.Rules.Add(humanized);
     }
 
     private void TryFollowHelper(
@@ -330,14 +474,6 @@ internal sealed class ValidatorRuleExtractor
 
     private INamedTypeSymbol? ResolveValidatorType(InvocationExpressionSyntax invocation, SemanticModel model)
     {
-        if (GetGenericTypeArgument(invocation) is { } genericName)
-        {
-            var type = model.GetTypeInfo(genericName).Type as INamedTypeSymbol
-                       ?? model.GetSymbolInfo(genericName).Symbol as INamedTypeSymbol;
-            if (type is not null)
-                return type;
-        }
-
         foreach (var argument in invocation.ArgumentList.Arguments)
         {
             var expression = argument.Expression;
@@ -348,8 +484,17 @@ internal sealed class ValidatorRuleExtractor
             if (created is not null)
                 return created;
 
-            if (model.GetTypeInfo(expression).Type is INamedTypeSymbol typed && IsValidatorType(typed))
+            if (model.GetTypeInfo(expression).Type is INamedTypeSymbol typed
+                && (IsValidatorType(typed) || IsPropertyValidatorType(typed)))
                 return typed;
+        }
+
+        foreach (var typeArgument in GetGenericTypeArguments(invocation))
+        {
+            var type = model.GetTypeInfo(typeArgument).Type as INamedTypeSymbol
+                       ?? model.GetSymbolInfo(typeArgument).Symbol as INamedTypeSymbol;
+            if (type is not null && (IsValidatorType(type) || IsPropertyValidatorType(type)))
+                return type;
         }
 
         return null;
@@ -369,7 +514,7 @@ internal sealed class ValidatorRuleExtractor
         };
     }
 
-    private static TypeSyntax? GetGenericTypeArgument(InvocationExpressionSyntax invocation)
+    private static IEnumerable<TypeSyntax> GetGenericTypeArguments(InvocationExpressionSyntax invocation)
     {
         var name = invocation.Expression switch
         {
@@ -378,9 +523,7 @@ internal sealed class ValidatorRuleExtractor
             _ => null
         };
 
-        return name is GenericNameSyntax g && g.TypeArgumentList.Arguments.Count > 0
-            ? g.TypeArgumentList.Arguments[0]
-            : null;
+        return name is GenericNameSyntax g ? g.TypeArgumentList.Arguments : [];
     }
 
     private List<string> EvaluateArguments(InvocationExpressionSyntax invocation, SemanticModel model, string methodName)
@@ -388,9 +531,19 @@ internal sealed class ValidatorRuleExtractor
         var values = new List<string>();
         foreach (var argument in invocation.ArgumentList.Arguments)
         {
-            if (argument.Expression is LambdaExpressionSyntax)
+            if (IsNonConstraintArgument(argument.Expression, model))
+                continue;
+
+            if (argument.Expression is LambdaExpressionSyntax lambda)
             {
-                if (methodName is "Must" or "MustAsync" or "Equal" or "EqualTo" or "NotEqual"
+                if (methodName is "Must" or "MustAsync")
+                {
+                    if (lambda.Body is ExpressionSyntax body)
+                        values.Add(CollapseWhitespace(body.ToString()));
+                    continue;
+                }
+
+                if (methodName is "Equal" or "EqualTo" or "NotEqual"
                     or "GreaterThan" or "GreaterThanOrEqualTo" or "LessThan" or "LessThanOrEqualTo")
                 {
                     var path = MemberPathFromLambda(argument.Expression);
@@ -398,6 +551,13 @@ internal sealed class ValidatorRuleExtractor
                         values.Add(path);
                 }
 
+                continue;
+            }
+
+            if (argument.Expression is TypeOfExpressionSyntax typeOf)
+            {
+                var type = model.GetTypeInfo(typeOf.Type).Type;
+                values.Add(type?.Name ?? CollapseWhitespace(typeOf.Type.ToString()));
                 continue;
             }
 
@@ -412,6 +572,21 @@ internal sealed class ValidatorRuleExtractor
         }
 
         return values;
+    }
+
+    private static bool IsNonConstraintArgument(ExpressionSyntax expression, SemanticModel model)
+    {
+        var type = model.GetTypeInfo(expression).Type;
+        if (type is null)
+            return false;
+
+        if (type.Name is "RegexOptions" or "EmailValidationMode")
+            return true;
+
+        if (type.Name.Contains("Comparer", StringComparison.Ordinal))
+            return true;
+
+        return type.AllInterfaces.Any(i => i.Name is "IEqualityComparer" or "IComparer" or "IEqualityComparer`1" or "IComparer`1");
     }
 
     private string? EvaluateArgument(InvocationExpressionSyntax invocation, int index, SemanticModel model)
@@ -531,6 +706,18 @@ internal sealed class ValidatorRuleExtractor
 
     internal static bool IsValidatorType(INamedTypeSymbol type)
         => GetValidatedType(type) is not null;
+
+    internal static bool IsPropertyValidatorType(INamedTypeSymbol type)
+    {
+        for (var current = type; current is not null; current = current.BaseType)
+        {
+            if (current.Name is "PropertyValidator" or "AsyncPropertyValidator")
+                return true;
+        }
+
+        return type.AllInterfaces.Any(i =>
+            i.Name is "IPropertyValidator" or "IAsyncPropertyValidator" or "IPropertyValidator`2" or "IAsyncPropertyValidator`2");
+    }
 
     internal static ITypeSymbol? GetValidatedType(INamedTypeSymbol type)
     {

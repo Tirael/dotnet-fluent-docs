@@ -244,7 +244,7 @@
           "rules": [
             {
               "id": "Must",
-              "description": "Должно удовлетворять пользовательскому условию.",
+              "description": "Должно удовлетворять условию `provider is \"Local\" or \"S3\"`.",
               "message": "Provider должен быть Local или S3.",
               "hasCondition": false
             },
@@ -263,7 +263,7 @@
           "rules": [
             {
               "id": "Must",
-              "description": "Должно удовлетворять пользовательскому условию.",
+              "description": "Должно удовлетворять условию `path.StartsWith('/')`.",
               "message": "RootPath должен быть абсолютным Unix-путём.",
               "hasCondition": false
             },

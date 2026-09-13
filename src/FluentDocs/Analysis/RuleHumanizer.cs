@@ -30,17 +30,35 @@ internal static class RuleHumanizer
         };
     }
 
+    public static SettingsRuleDocument PropertyValidator(string typeName, bool hasCondition, string? ruleSet)
+    {
+        var shortName = typeName;
+        var tick = shortName.IndexOf('`', StringComparison.Ordinal);
+        if (tick >= 0)
+            shortName = shortName[..tick];
+
+        return new SettingsRuleDocument
+        {
+            Id = $"Validator:{shortName}",
+            Description = $"Должно удовлетворять `{SplitName(shortName)}`.",
+            RuleSet = string.IsNullOrWhiteSpace(ruleSet) || ruleSet == "default" ? null : ruleSet,
+            HasCondition = hasCondition
+        };
+    }
+
     public static bool IsIgnored(string methodName)
         => methodName is "WithMessage" or "WithName" or "WithErrorCode" or "WithSeverity"
             or "WithState" or "OverridePropertyName" or "Configure" or "Cascade"
             or "DependentRules" or "ChildRules" or "SetValidator" or "SetInheritanceValidator"
-            or "When" or "Unless" or "WhenAsync" or "UnlessAsync"
-            or "WithDisplayName" or "WithErrorList";
+            or "SetAsyncValidator" or "When" or "Unless" or "WhenAsync" or "UnlessAsync"
+            or "WithDisplayName" or "WithErrorList"
+            or "Transform" or "TransformForEach" or "ForEach";
 
     private static (string Id, string Description) Describe(string methodName, IReadOnlyList<string> arguments)
     {
         var arg0 = arguments.ElementAtOrDefault(0) ?? "";
         var arg1 = arguments.ElementAtOrDefault(1) ?? "";
+        var arg2 = arguments.ElementAtOrDefault(2) ?? "";
 
         switch (methodName)
         {
@@ -87,11 +105,34 @@ internal static class RuleHumanizer
                 return ("CreditCard", "Должно быть корректным номером банковской карты.");
             case "IsInEnum":
                 return ("Enum", "Должно быть допустимым значением перечисления.");
+            case "IsEnumName":
+                {
+                    var ignoreCase = IsFalse(arg1);
+                    var id = ignoreCase ? $"IsEnumName:{arg0}:ignoreCase" : $"IsEnumName:{arg0}";
+                    var description = ignoreCase
+                        ? $"Должно быть именем значения перечисления `{arg0}` (без учёта регистра)."
+                        : $"Должно быть именем значения перечисления `{arg0}`.";
+                    return (id, description);
+                }
+            case "PrecisionScale":
+                {
+                    var ignoreZeros = IsTrue(arg2);
+                    var id = ignoreZeros ? $"PrecisionScale:{arg0},{arg1},ignoreTrailingZeros" : $"PrecisionScale:{arg0},{arg1}";
+                    var description = ignoreZeros
+                        ? $"Точность {arg0}, масштаб {arg1} (без учёта хвостовых нулей)."
+                        : $"Точность {arg0}, масштаб {arg1}.";
+                    return (id, description);
+                }
             case "ScalePrecision":
                 return ($"ScalePrecision:{arg0},{arg1}", $"Масштаб {arg0}, точность {arg1}.");
             case "Must":
             case "MustAsync":
-                return ("Must", "Должно удовлетворять пользовательскому условию.");
+                return string.IsNullOrWhiteSpace(arg0)
+                    ? ("Must", "Должно удовлетворять пользовательскому условию.")
+                    : ("Must", $"Должно удовлетворять условию `{arg0}`.");
+            case "Custom":
+            case "CustomAsync":
+                return ("Custom", "Пользовательская проверка.");
             default:
                 {
                     var friendly = SplitName(methodName);
@@ -99,6 +140,12 @@ internal static class RuleHumanizer
                 }
         }
     }
+
+    private static bool IsTrue(string value)
+        => value is "true" or "True";
+
+    private static bool IsFalse(string value)
+        => value is "false" or "False";
 
     private static string SplitName(string name)
     {
