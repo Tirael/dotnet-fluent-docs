@@ -61,9 +61,10 @@ dotnet exec src/FluentDocs.Tool/bin/Debug/net10.0/FluentDocs.Tool.dll \
 
 - Типы с `[SettingsDocs]`. Если атрибута нет — типы, для которых есть `IValidator<T>` и имя оканчивается на `Options` / `Settings` / `Configuration` / `Config`.
 - Свойства, XML `<summary>` / `<remarks>`, значения по умолчанию из инициализаторов.
-- Правила FluentValidation с нормализованным id (`NotEmpty`, `MaximumLength:50`, `InclusiveBetween:1-3600`, `Matches:^...$`, `Must`, …).
-- Вложенность: `SetValidator`, `RuleForEach` / `ChildRules` → dotted path (`Retry.MaxAttempts`, `Recipients[].Email`).
+- Правила FluentValidation с нормализованным id (`NotEmpty`, `MaximumLength:50`, `InclusiveBetween:1-3600`, `Matches:^...$`, `Must`, `PrecisionScale:4,2`, `IsEnumName:Status`, `Custom`, …).
+- Вложенность: `SetValidator`, `RuleForEach` / `ForEach` / `ChildRules` / `SetInheritanceValidator` → dotted path (`Retry.MaxAttempts`, `Recipients[].Email`, `Contact.Phone`).
 - Условные правила (`When` / `Unless`) помечаются как условные.
+- Именованные `IPropertyValidator` попадают как `Validator:TypeName`.
 - Правила из вспомогательных методов того же валидатора и из конструкторов **с параметрами** (DI): экземпляр валидатора не создаётся.
 
 Журнал изменений сравнивает **идентификаторы правил**, а не сырой текст: изменение `MaximumLength:50` → `MaximumLength:255` видно как удаление + добавление. Неизменившийся `NotEmpty` в журнал не попадает.
@@ -71,9 +72,9 @@ dotnet exec src/FluentDocs.Tool/bin/Debug/net10.0/FluentDocs.Tool.dll \
 ## Ограничения v1
 
 - Разбирается fluent-API в исходниках текущей компиляции. Валидаторы из других сборок без исходников не раскрываются.
-- Кастомный `Must` документируется как пользовательское условие; осмысленный текст берётся из `WithMessage`.
+- `Must` включает текст предиката, если это выражение; иначе — общее «пользовательское условие». `Custom` фиксируется без тела лямбды.
 - Условие `When`/`Unless` фиксируется как флаг, без сериализации лямбды.
-- Не документируются `Custom`, `PolymorphicValidator`, `Transform`, `CascadeMode`, `Severity`.
+- `Transform`, `CascadeMode`, `Severity`, `WithName` в каталог не попадают.
 
 ## Сборка и тесты
 
