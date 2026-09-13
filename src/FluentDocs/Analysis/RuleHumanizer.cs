@@ -142,10 +142,10 @@ internal static class RuleHumanizer
     }
 
     private static bool IsTrue(string value)
-        => value is "true" or "True";
+        => value.Equals("true", StringComparison.OrdinalIgnoreCase);
 
     private static bool IsFalse(string value)
-        => value is "false" or "False";
+        => value.Equals("false", StringComparison.OrdinalIgnoreCase);
 
     private static string SplitName(string name)
     {
